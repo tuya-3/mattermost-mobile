@@ -254,7 +254,7 @@
   "mobile.gallery.title": "{index} od {total}",
   "mobile.link.error.text": "Nije moguće otvoriti poveznicu.",
   "mobile.link.error.title": "Greška",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "tunag",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Prijavi se na svoj račun",
   "mobile.login_options.saml": "SAML",

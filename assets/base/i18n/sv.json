@@ -658,7 +658,7 @@
   "mobile.login_options.cant_heading": "Kan inte logga in",
   "mobile.login_options.enter_credentials": "Ange dina inloggningsuppgifter nedan.",
   "mobile.login_options.entraid": "Entra ID",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "tunag",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Logga in på ditt konto",
   "mobile.login_options.none": "Du kan inte logga in på ditt konto ännu. Minst ett inloggningsalternativ måste vara konfigurerat. Kontakta din systemadministratör för att få hjälp.",

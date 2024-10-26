@@ -636,7 +636,7 @@
   "mobile.link.error.title": "Feil",
   "mobile.login_options.cant_heading": "Får ikke logget på",
   "mobile.login_options.enter_credentials": "Skriv inn påloggingsdetaljene dine nedenfor.",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "tunag",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Logg inn på kontoen din",
   "mobile.login_options.none": "Du kan ikke logge på kontoen din ennå. Minst ett påloggingsalternativ må konfigureres. Kontakt systemadministratoren din for hjelp.",

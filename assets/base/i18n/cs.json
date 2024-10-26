@@ -658,7 +658,7 @@
   "mobile.login_options.cant_heading": "Nelze se přihlásit",
   "mobile.login_options.enter_credentials": "Zadejte své přihlašovací údaje níže.",
   "mobile.login_options.entraid": "Entra ID",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "tunag",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Přihlaste se ke Svému Účtu",
   "mobile.login_options.none": "Nemůžete se ještě přihlásit ke svému účtu. Musí být nakonfigurována alespoň jedna přihlašovací možnost. Kontaktujte svého správce systému pro pomoc.",

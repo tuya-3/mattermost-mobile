@@ -551,7 +551,7 @@
   "mobile.link.error.title": "Помилка",
   "mobile.login_options.cant_heading": "Не вдається увійти",
   "mobile.login_options.enter_credentials": "Введіть свої дані для входу нижче.",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "tunag",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Увійдіть до свого облікового запису",
   "mobile.login_options.none": "Ви ще не можете увійти до свого облікового запису. Необхідно налаштувати принаймні один варіант входу. Зверніться за допомогою до системного адміністратора.",
