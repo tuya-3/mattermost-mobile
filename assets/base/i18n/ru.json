@@ -658,7 +658,7 @@
   "mobile.login_options.cant_heading": "Не могу войти в систему",
   "mobile.login_options.enter_credentials": "Введите свои данные для входа в систему ниже.",
   "mobile.login_options.entraid": "Идентификатор Entra",
-  "mobile.login_options.gitlab": "tunag",
+  "mobile.login_options.gitlab": "TUNAG",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Войдите в свою учетную запись",
   "mobile.login_options.none": "Вы пока не можете войти в свою учетную запись. Должен быть настроен хотя бы один вариант входа в систему. Обратитесь за помощью к своему системному администратору.",

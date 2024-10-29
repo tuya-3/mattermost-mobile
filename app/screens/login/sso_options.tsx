@@ -38,7 +38,7 @@ const SsoOptions = ({goToSso, ssoOnly, ssoOptions, theme}: Props) => {
                 sso.compassIcon = 'lock';
                 break;
             case Sso.GITLAB:
-                sso.text = formatMessage({id: 'mobile.login_options.gitlab', defaultMessage: 'tunag'});
+                sso.text = formatMessage({id: 'mobile.login_options.gitlab', defaultMessage: 'TUNAG'});
                 sso.imageSrc = require('@assets/images/Icon_Gitlab.png');
                 break;
             case Sso.GOOGLE:
