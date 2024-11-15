@@ -577,7 +577,7 @@
   "mobile.link.error.title": "Erreur",
   "mobile.login_options.cant_heading": "Connexion impossible",
   "mobile.login_options.enter_credentials": "Saisissez vos informations de connexion ci-dessous.",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "TUNAG",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Connectez-vous à votre compte",
   "mobile.login_options.none": "Vous ne pouvez pas encore vous connecter à votre compte. Au moins une option de connexion doit être configurée. Contactez votre administrateur système pour obtenir de l'aide.",

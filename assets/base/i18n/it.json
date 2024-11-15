@@ -565,7 +565,7 @@
   "mobile.link.error.title": "Errore",
   "mobile.login_options.cant_heading": "Impossibile accedere",
   "mobile.login_options.enter_credentials": "Inserite i vostri dati di accesso qui sotto.",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "TUNAG",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Accedere al proprio account",
   "mobile.login_options.none": "Non è ancora possibile accedere al proprio account. È necessario configurare almeno un'opzione di accesso. Contattare il proprio amministratore di sistema per assistenza.",
