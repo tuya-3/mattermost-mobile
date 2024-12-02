@@ -5,3 +5,8 @@
 
 # For all available options run `fastlane match --help`
 # Remove the # in the beginning of the line to enable the other options
+
+git_url("git@github.com:stmninc/TUNAG-Chat2.0-secrets.git")
+storage_mode("git")
+app_identifier("jp.co.stmn.TUNAG.chat")
+username("shinsuke.asakura@stmn.co.jp")
