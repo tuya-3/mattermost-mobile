@@ -13,7 +13,7 @@ import Field from './field';
 import type {FloatingTextInputRef} from '@components/floating_text_input_label';
 
 const services: Record<string, string> = {
-    gitlab: 'GitLab',
+    gitlab: 'Tunag',
     google: 'Google Apps',
     office365: 'Entra ID',
     ldap: 'AD/LDAP',
