@@ -29,7 +29,8 @@ import {bottomSheetSnapPoint} from '@utils/helpers';
 import {calculateDimensions, getViewPortWidth, isGifTooLarge} from '@utils/images';
 import {getMarkdownImageSize} from '@utils/markdown';
 import {changeOpacity, makeStyleSheetFromTheme} from '@utils/theme';
-import {normalizeProtocol, tryOpenURL} from '@utils/url';
+import {secureGetFromRecord} from '@utils/types';
+import {normalizeProtocol, safeDecodeURIComponent, tryOpenURL} from '@utils/url';
 
 import type {GalleryItemType} from '@typings/screens/gallery';
 
@@ -80,7 +81,7 @@ const MarkdownImage = ({
     const style = getStyleSheet(theme);
     const managedConfig = useManagedConfig<ManagedConfig>();
     const genericFileId = useRef(generateId('uid')).current;
-    const metadata = imagesMetadata?.[source] || Object.values(imagesMetadata || {})[0];
+    const metadata = secureGetFromRecord(imagesMetadata, source) || Object.values(imagesMetadata || {})[0];
     const [failed, setFailed] = useState(isGifTooLarge(metadata));
     const originalSize = getMarkdownImageSize(isReplyPost, isTablet, sourceSize, metadata, layoutWidth, layoutHeight);
     const serverUrl = useServerUrl();
@@ -88,8 +89,8 @@ const MarkdownImage = ({
     const uri = source.startsWith('/') ? serverUrl + source : source;
 
     const fileInfo = useMemo(() => {
-        const link = decodeURIComponent(uri);
-        let filename = parseUrl(link.substr(link.lastIndexOf('/'))).pathname.replace('/', '');
+        const decodedLink = safeDecodeURIComponent(uri);
+        let filename = parseUrl(decodedLink.substr(decodedLink.lastIndexOf('/'))).pathname.replace('/', '');
         let extension = metadata?.format || filename.split('.').pop();
         if (extension === filename) {
             const ext = filename.indexOf('.') === -1 ? '.png' : filename.substring(filename.lastIndexOf('.'));
@@ -104,7 +105,7 @@ const MarkdownImage = ({
             has_preview_image: true,
             mime_type: lookupMimeType(filename),
             post_id: postId,
-            uri: link,
+            uri,
             width: originalSize.width,
             height: originalSize.height,
         } as FileInfo;
