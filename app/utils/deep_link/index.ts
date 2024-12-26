@@ -303,5 +303,5 @@ export function alertInvalidDeepLink(intl: IntlShape) {
         defaultMessage: 'This link you are trying to open is invalid.',
     };
 
-    return alertErrorWithFallback(intl, {}, message);
+    return alertErrorWithFallback(intl, {}, {});
 }
