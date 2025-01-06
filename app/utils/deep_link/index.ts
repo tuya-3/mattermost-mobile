@@ -298,10 +298,5 @@ export const getLaunchPropsFromDeepLink = (deepLinkUrl: string, coldStart = fals
 };
 
 export function alertInvalidDeepLink(intl: IntlShape) {
-    const message = {
-        id: t('mobile.deep_link.invalid'),
-        defaultMessage: 'This link you are trying to open is invalid.',
-    };
-
     return alertErrorWithFallback(intl, {}, {});
 }
