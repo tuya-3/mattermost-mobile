@@ -13,7 +13,7 @@ import {DeepLink, Launch, Screens} from '@constants';
 import DeepLinkType from '@constants/deep_linking';
 import {getDefaultThemeByAppearance} from '@context/theme';
 import DatabaseManager from '@database/manager';
-import {DEFAULT_LOCALE, t} from '@i18n';
+import {DEFAULT_LOCALE} from '@i18n';
 import WebsocketManager from '@managers/websocket_manager';
 import {getActiveServerUrl} from '@queries/app/servers';
 import {getCurrentUser, queryUsersByUsername} from '@queries/servers/user';
@@ -298,10 +298,5 @@ export const getLaunchPropsFromDeepLink = (deepLinkUrl: string, coldStart = fals
 };
 
 export function alertInvalidDeepLink(intl: IntlShape) {
-    const message = {
-        id: t('mobile.deep_link.invalid'),
-        defaultMessage: 'This link you are trying to open is invalid.',
-    };
-
-    return alertErrorWithFallback(intl, {}, message);
+    return alertErrorWithFallback(intl, {}, {});
 }
