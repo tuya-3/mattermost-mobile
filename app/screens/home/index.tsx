@@ -30,6 +30,7 @@ import Search from './search';
 import TabBar from './tab_bar';
 
 import type {DeepLinkWithData, LaunchProps} from '@typings/launch';
+import DeepLinkType from '@constants/deep_linking';
 
 if (Platform.OS === 'ios') {
     // We do this on iOS to avoid conflicts betwen ReactNavigation & Wix ReactNativeNavigation
@@ -125,7 +126,7 @@ export default function HomeScreen(props: HomeProps) {
             }
 
             const deepLink = props.extra as DeepLinkWithData;
-            if (deepLink?.url) {
+            if (deepLink.type !== DeepLinkType.Open && deepLink?.url) {
                 handleDeepLink(deepLink.url, intl, props.componentId, true).then((result) => {
                     if (result.error) {
                         alertInvalidDeepLink(intl);
