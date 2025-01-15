@@ -212,6 +212,9 @@ function isValidPostId(id: string): boolean {
 export function parseDeepLink(deepLinkUrl: string, asServer = false): DeepLinkWithData {
     try {
         const url = removeProtocol(deepLinkUrl);
+        if (deepLinkUrl.split('://')[1] === '') {
+            return {type: DeepLink.Open, url: deepLinkUrl};
+        }
 
         const channelMatch = matchChannelDeeplink(url);
         if (channelMatch && isValidTeamName(channelMatch.params.teamName) && isValidIdentifierPathPattern(channelMatch.params.identifier)) {
