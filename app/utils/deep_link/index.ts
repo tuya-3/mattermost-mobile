@@ -40,6 +40,10 @@ const deepLinkScreens: AvailableScreens[] = [Screens.HOME, Screens.CHANNEL, Scre
 export async function handleDeepLink(deepLinkUrl: string, intlShape?: IntlShape, location?: string, asServer = false) {
     try {
         const parsed = parseDeepLink(deepLinkUrl, asServer);
+        if (parsed.type === DeepLink.Open) {
+            return {error: false};
+        }
+
         if (parsed.type === DeepLink.Invalid || !parsed.data || !parsed.data.serverUrl) {
             return {error: true};
         }
