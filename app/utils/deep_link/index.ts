@@ -13,7 +13,7 @@ import {DeepLink, Launch, Screens} from '@constants';
 import DeepLinkType from '@constants/deep_linking';
 import {getDefaultThemeByAppearance} from '@context/theme';
 import DatabaseManager from '@database/manager';
-import {DEFAULT_LOCALE} from '@i18n';
+import {DEFAULT_LOCALE, t} from '@i18n';
 import WebsocketManager from '@managers/websocket_manager';
 import {getActiveServerUrl} from '@queries/app/servers';
 import {getCurrentUser, queryUsersByUsername} from '@queries/servers/user';
@@ -40,6 +40,10 @@ const deepLinkScreens: AvailableScreens[] = [Screens.HOME, Screens.CHANNEL, Scre
 export async function handleDeepLink(deepLinkUrl: string, intlShape?: IntlShape, location?: string, asServer = false) {
     try {
         const parsed = parseDeepLink(deepLinkUrl, asServer);
+        if (parsed.type === DeepLink.Open) {
+            return {error: false};
+        }
+
         if (parsed.type === DeepLink.Invalid || !parsed.data || !parsed.data.serverUrl) {
             return {error: true};
         }
@@ -212,6 +216,9 @@ function isValidPostId(id: string): boolean {
 export function parseDeepLink(deepLinkUrl: string, asServer = false): DeepLinkWithData {
     try {
         const url = removeProtocol(deepLinkUrl);
+        if (deepLinkUrl.split('://')[1] === '') {
+            return {type: DeepLink.Open, url: deepLinkUrl};
+        }
 
         const channelMatch = matchChannelDeeplink(url);
         if (channelMatch && isValidTeamName(channelMatch.params.teamName) && isValidIdentifierPathPattern(channelMatch.params.identifier)) {
@@ -298,5 +305,10 @@ export const getLaunchPropsFromDeepLink = (deepLinkUrl: string, coldStart = fals
 };
 
 export function alertInvalidDeepLink(intl: IntlShape) {
-    return alertErrorWithFallback(intl, {}, {});
+    const message = {
+        id: t('mobile.deep_link.invalid'),
+        defaultMessage: 'This link you are trying to open is invalid.',
+    };
+
+    return alertErrorWithFallback(intl, {}, message);
 }

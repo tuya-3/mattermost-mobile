@@ -9,6 +9,7 @@ const DeepLinkType = {
     Permalink: 'permalink',
     Redirect: '_redirect',
     Server: 'server',
+    Open: 'open',
 } as const;
 
 export default DeepLinkType;
