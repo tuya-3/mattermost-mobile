@@ -30,6 +30,7 @@ import Search from './search';
 import TabBar from './tab_bar';
 
 import type {DeepLinkWithData, LaunchProps} from '@typings/launch';
+import DeepLinkType from '@constants/deep_linking';
 
 if (Platform.OS === 'ios') {
     // We do this on iOS to avoid conflicts betwen ReactNavigation & Wix ReactNativeNavigation
@@ -57,7 +58,7 @@ const updateTimezoneIfNeeded = async () => {
     }
 };
 
-export default function HomeScreen(props: HomeProps) {
+export function HomeScreen(props: HomeProps) {
     const theme = useTheme();
     const intl = useIntl();
     const appState = useAppState();
@@ -82,7 +83,7 @@ export default function HomeScreen(props: HomeProps) {
         return () => {
             listener.remove();
         };
-    }, [intl.locale]);
+    }, [intl]);
 
     useEffect(() => {
         const leaveTeamListener = DeviceEventEmitter.addListener(Events.LEAVE_TEAM, (displayName: string) => {
@@ -109,7 +110,7 @@ export default function HomeScreen(props: HomeProps) {
             archivedChannelListener.remove();
             crtToggledListener.remove();
         };
-    }, [intl.locale]);
+    }, [intl]);
 
     useEffect(() => {
         if (appState === 'active') {
@@ -125,7 +126,7 @@ export default function HomeScreen(props: HomeProps) {
             }
 
             const deepLink = props.extra as DeepLinkWithData;
-            if (deepLink?.url) {
+            if (deepLink.type !== DeepLinkType.Open && deepLink?.url) {
                 handleDeepLink(deepLink.url, intl, props.componentId, true).then((result) => {
                     if (result.error) {
                         alertInvalidDeepLink(intl);
@@ -191,3 +192,5 @@ export default function HomeScreen(props: HomeProps) {
         </>
     );
 }
+
+export default HomeScreen;

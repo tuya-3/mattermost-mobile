@@ -602,7 +602,7 @@
   "mobile.link.error.title": "Error",
   "mobile.login_options.cant_heading": "No se puede iniciar sesión",
   "mobile.login_options.enter_credentials": "Ingresa tus detalles de inicio de sesión abajo.",
-  "mobile.login_options.gitlab": "GitLab",
+  "mobile.login_options.gitlab": "TUNAG",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "Inicia sesión en tu Cuenta",
   "mobile.login_options.none": "Aún no puedes iniciar sesión en tu cuenta. Se debe configurar al menos una opción de inicio. Contacta a tu Administrador del Sistema para ayuda.",

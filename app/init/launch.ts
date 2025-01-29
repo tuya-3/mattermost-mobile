@@ -80,7 +80,9 @@ const launchApp = async (props: LaunchProps) => {
     let serverUrl: string | undefined;
     switch (props?.launchType) {
         case Launch.DeepLink:
-            if (props.extra && props.extra.type !== DeepLink.Invalid) {
+            if (props.extra && props.extra.type === DeepLink.Open) {
+                serverUrl = await getActiveServerUrl();
+            } else if (props.extra && props.extra.type !== DeepLink.Invalid) {
                 const extra = props.extra as DeepLinkWithData;
                 const existingServer = DatabaseManager.searchUrl(extra.data!.serverUrl);
                 serverUrl = existingServer;

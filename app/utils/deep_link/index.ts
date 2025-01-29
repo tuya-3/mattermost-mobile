@@ -40,6 +40,10 @@ const deepLinkScreens: AvailableScreens[] = [Screens.HOME, Screens.CHANNEL, Scre
 export async function handleDeepLink(deepLinkUrl: string, intlShape?: IntlShape, location?: string, asServer = false) {
     try {
         const parsed = parseDeepLink(deepLinkUrl, asServer);
+        if (parsed.type === DeepLink.Open) {
+            return {error: false};
+        }
+
         if (parsed.type === DeepLink.Invalid || !parsed.data || !parsed.data.serverUrl) {
             return {error: true};
         }
@@ -212,6 +216,9 @@ function isValidPostId(id: string): boolean {
 export function parseDeepLink(deepLinkUrl: string, asServer = false): DeepLinkWithData {
     try {
         const url = removeProtocol(deepLinkUrl);
+        if (deepLinkUrl.split('://')[1] === '') {
+            return {type: DeepLink.Open, url: deepLinkUrl};
+        }
 
         const channelMatch = matchChannelDeeplink(url);
         if (channelMatch && isValidTeamName(channelMatch.params.teamName) && isValidIdentifierPathPattern(channelMatch.params.identifier)) {
