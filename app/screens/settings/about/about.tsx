@@ -192,12 +192,13 @@ const About = ({componentId, config, license}: AboutProps) => {
     return (
         <SettingContainer testID='about'>
             <View style={styles.logoContainer}>
-                <CompassIcon
+                {/* Disable to comply with the Trademark Policy and strengthen the rebranding of TUNAG Chat. */}
+                {/* <CompassIcon
                     color={theme.centerChannelColor}
                     name='mattermost'
                     size={88}
                     testID='about.logo'
-                />
+                /> */}
                 <Title
                     config={config}
                     license={license}
@@ -288,10 +289,11 @@ const About = ({componentId, config, license}: AboutProps) => {
                         />
                     </View>
                 )}
-                <LearnMore
+                {/* Disable to strengthen the rebranding of TUNAG Chat. */}
+                {/* <LearnMore
                     config={config}
                     onPress={handleAboutTeam}
-                />
+                /> */}
                 {!MATTERMOST_BUNDLE_IDS.includes(applicationId || '') &&
                     <FormattedText
                         defaultMessage='{site} is powered by Mattermost'
