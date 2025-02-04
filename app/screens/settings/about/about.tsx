@@ -9,7 +9,7 @@ import {Alert, Text, View} from 'react-native';
 
 import Config from '@assets/config.json';
 import Button from '@components/button';
-import CompassIcon from '@components/compass_icon';
+// import CompassIcon from '@components/compass_icon';
 import FormattedText from '@components/formatted_text';
 import SettingContainer from '@components/settings/container';
 import AboutLinks from '@constants/about_links';
@@ -25,7 +25,7 @@ import {changeOpacity, makeStyleSheetFromTheme} from '@utils/theme';
 import {typography} from '@utils/typography';
 import {tryOpenURL} from '@utils/url';
 
-import LearnMore from './learn_more';
+// import LearnMore from './learn_more';
 import Subtitle from './subtitle';
 import Title from './title';
 import TosPrivacyContainer from './tos_privacy';
@@ -137,9 +137,9 @@ const About = ({componentId, config, license}: AboutProps) => {
         tryOpenURL(url, onError);
     }, []);
 
-    const handleAboutTeam = useCallback(preventDoubleTap(() => {
-        return openURL(Config.WebsiteURL);
-    }), []);
+    // const handleAboutTeam = useCallback(preventDoubleTap(() => {
+    //     return openURL(Config.WebsiteURL);
+    // }), []);
 
     const handlePlatformNotice = useCallback(preventDoubleTap(() => {
         return openURL(Config.ServerNoticeURL);
