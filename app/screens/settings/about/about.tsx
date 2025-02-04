@@ -193,7 +193,7 @@ const About = ({componentId, config, license}: AboutProps) => {
     return (
         <SettingContainer testID='about'>
             <View style={styles.logoContainer}>
-                {/* Disable to comply with the Trademark Policy and strengthen the rebranding of TUNAG Chat. */}
+                {/* Disable to comply with the Trademark Policy and strengthen the branding of TUNAG Chat. */}
                 {/* <CompassIcon
                     color={theme.centerChannelColor}
                     name='mattermost'
@@ -290,7 +290,7 @@ const About = ({componentId, config, license}: AboutProps) => {
                         />
                     </View>
                 )}
-                {/* Disable to strengthen the rebranding of TUNAG Chat. */}
+                {/* Disable to strengthen the branding of TUNAG Chat. */}
                 {/* <LearnMore
                     config={config}
                     onPress={handleAboutTeam}
