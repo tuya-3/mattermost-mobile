@@ -1985,7 +1985,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 590;
+				CURRENT_PROJECT_VERSION = 593;
 				DEVELOPMENT_TEAM = 99GDMY3Q6H;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 99GDMY3Q6H;
 				ENABLE_BITCODE = NO;
@@ -2029,7 +2029,7 @@
 				CODE_SIGN_ENTITLEMENTS = Mattermost/Mattermost.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 590;
+				CURRENT_PROJECT_VERSION = 593;
 				DEVELOPMENT_TEAM = 99GDMY3Q6H;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
@@ -2182,7 +2182,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 587;
+				CURRENT_PROJECT_VERSION = 593;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 99GDMY3Q6H;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 99GDMY3Q6H;
@@ -2234,7 +2234,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 590;
+				CURRENT_PROJECT_VERSION = 593;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 99GDMY3Q6H;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 99GDMY3Q6H;
