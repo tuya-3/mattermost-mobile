@@ -9,7 +9,6 @@ import {Alert, Text, View} from 'react-native';
 
 import Config from '@assets/config.json';
 import Button from '@components/button';
-
 // import CompassIcon from '@components/compass_icon';
 import FormattedText from '@components/formatted_text';
 import SettingContainer from '@components/settings/container';
