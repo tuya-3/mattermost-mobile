@@ -660,7 +660,7 @@
   "mobile.login_options.cant_heading": "ログインできませんでした",
   "mobile.login_options.enter_credentials": "以下にログイン情報を入力してください。",
   "mobile.login_options.entraid": "Entra ID",
-  "mobile.login_options.gitlab": "TUNAG",
+  "mobile.login_options.gitlab": "TUNAGでログイン",
   "mobile.login_options.google": "Google",
   "mobile.login_options.heading": "アカウントにログインする",
   "mobile.login_options.none": "まだアカウントにログインできません。少なくとも一つのログインオプションが設定されている必要があります。システム管理者に問い合わせてください。",
