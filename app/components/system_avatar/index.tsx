@@ -16,6 +16,7 @@ const SystemAvatar = ({theme}: Props) => {
             name='mattermost'
             color={theme.centerChannelColor}
             size={ViewConstants.PROFILE_PICTURE_SIZE}
+            style={{opacity: 0}}
         />
     );
 };
