@@ -4,8 +4,9 @@
 import {useHardwareKeyboardEvents} from '@mattermost/hardware-keyboard';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Freeze} from 'react-freeze';
 import {useIntl} from 'react-intl';
-import {FlatList, type LayoutChangeEvent, Platform, StyleSheet, type ViewStyle, KeyboardAvoidingView, Keyboard} from 'react-native';
+import {FlatList, type LayoutChangeEvent, Platform, type ViewStyle, KeyboardAvoidingView, Keyboard, StyleSheet} from 'react-native';
 import Animated, {useAnimatedStyle, useDerivedValue, withTiming, type AnimatedStyle} from 'react-native-reanimated';
 import {type Edge, SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -13,7 +14,6 @@ import {getPosts} from '@actions/local/post';
 import {addSearchToTeamSearchHistory} from '@actions/local/team';
 import {searchPosts, searchFiles} from '@actions/remote/search';
 import Autocomplete from '@components/autocomplete';
-import FreezeScreen from '@components/freeze_screen';
 import Loading from '@components/loading';
 import NavigationHeader from '@components/navigation_header';
 import RoundedHeaderContext from '@components/rounded_header_context';
@@ -114,17 +114,9 @@ const SearchScreen = ({teamId, teams}: Props) => {
         setSearchTeamId(teamId);
     }, [teamId]);
 
-    useEffect(() => {
-        if (searchTerm) {
-            resetToInitial();
-            setSearchValue(searchTerm);
-            handleSearch(searchTeamId, searchTerm);
-        }
-    }, [searchTerm]);
-
-    const onSnap = (offset: number, animated = true) => {
+    const onSnap = useCallback((offset: number, animated = true) => {
         scrollRef.current?.scrollToOffset({offset, animated});
-    };
+    }, []);
 
     const onSnapWithTimeout = useCallback((offset: number, animated = true) => {
         // wait until the keyboard is completely dismissed before scrolling to where the header should be
@@ -146,6 +138,12 @@ const SearchScreen = ({teamId, teams}: Props) => {
 
     const resetToInitial = useCallback(() => {
         setShowResults(false);
+        setSearchValue('');
+        setLastSearchedValue('');
+        setFilter(FileFilters.ALL);
+    }, []);
+
+    const clearInputs = useCallback(() => {
         setSearchValue('');
         setLastSearchedValue('');
         setFilter(FileFilters.ALL);
@@ -203,7 +201,7 @@ const SearchScreen = ({teamId, teams}: Props) => {
         setFileChannelIds(channels?.length ? channels : emptyChannelIds);
         handleLoading(false);
         setShowResults(true);
-    }, [filter, handleClearSearch, handleLoading]);
+    }, [filter, handleClearSearch, handleLoading, hideHeader, serverUrl]);
 
     const onBlur = useCallback(() => {
         setSearchIsFocused(false);
@@ -233,7 +231,7 @@ const SearchScreen = ({teamId, teams}: Props) => {
         setFileInfos(files?.length ? files : emptyFileResults);
         setFileChannelIds(channels?.length ? channels : emptyChannelIds);
         setResultsLoading(false);
-    }, [lastSearchedValue, searchTeamId]);
+    }, [lastSearchedValue, searchTeamId, serverUrl]);
 
     const handleResultsTeamChange = useCallback((newTeamId: string) => {
         setSearchTeamId(newTeamId);
@@ -267,8 +265,11 @@ const SearchScreen = ({teamId, teams}: Props) => {
                 teams={teams}
             />
         );
-    }, [handleRecentSearch, handleTextChange, loading,
-        scrollPaddingTop, searchTeamId, searchValue, theme]);
+    }, [
+        handleModifierTextChange, handleRecentSearch,
+        loading, scrollEnabled, scrollPaddingTop, searchTeamId,
+        searchValue, styles.loading, teams, theme.buttonBg,
+    ]);
 
     const animated = useAnimatedStyle(() => {
         if (isFocused) {
@@ -320,6 +321,14 @@ const SearchScreen = ({teamId, teams}: Props) => {
         }
     }, [unlock, onSnapWithTimeout]);
 
+    useEffect(() => {
+        if (searchTerm) {
+            clearInputs();
+            setSearchValue(searchTerm);
+            handleSearch(searchTeamId, searchTerm);
+        }
+    }, [handleSearch, clearInputs, searchTeamId, searchTerm]);
+
     useDidUpdate(() => {
         if (isFocused) {
             setTimeout(() => {
@@ -342,32 +351,32 @@ const SearchScreen = ({teamId, teams}: Props) => {
     useHardwareKeyboardEvents(events);
 
     return (
-        <FreezeScreen freeze={!isFocused}>
-            <NavigationHeader
-                isLargeTitle={true}
-                showBackButton={false}
-                title={intl.formatMessage({id: 'screen.search.title', defaultMessage: 'Search'})}
-                hasSearch={true}
-                scrollValue={scrollValue}
-                lockValue={lockValue}
-                hideHeader={hideHeader}
-                onChangeText={handleTextChange}
-                onSubmitEditing={onSubmit}
-                blurOnSubmit={true}
-                placeholder={intl.formatMessage({id: 'screen.search.placeholder', defaultMessage: 'Search messages & files'})}
-                onBlur={onBlur}
-                onClear={handleClearSearch}
-                onCancel={handleCancelSearch}
-                onFocus={onFocus}
-                defaultValue={searchValue}
-                ref={searchRef}
-            />
+        <Freeze freeze={!isFocused}>
             <SafeAreaView
                 style={styles.flex}
                 edges={EDGES}
                 onLayout={onLayout}
                 testID='search_messages.screen'
             >
+                <NavigationHeader
+                    isLargeTitle={true}
+                    showBackButton={false}
+                    title={intl.formatMessage({id: 'screen.search.title', defaultMessage: 'Search'})}
+                    hasSearch={true}
+                    scrollValue={scrollValue}
+                    lockValue={lockValue}
+                    hideHeader={hideHeader}
+                    onChangeText={handleTextChange}
+                    onSubmitEditing={onSubmit}
+                    blurOnSubmit={true}
+                    placeholder={intl.formatMessage({id: 'screen.search.placeholder', defaultMessage: 'Search messages & files'})}
+                    onBlur={onBlur}
+                    onClear={handleClearSearch}
+                    onCancel={handleCancelSearch}
+                    onFocus={onFocus}
+                    defaultValue={searchValue}
+                    ref={searchRef}
+                />
                 <KeyboardAvoidingView
                     style={styles.flex}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -434,7 +443,7 @@ const SearchScreen = ({teamId, teams}: Props) => {
                 teamId={searchTeamId}
             />
             }
-        </FreezeScreen>
+        </Freeze>
     );
 };
 
