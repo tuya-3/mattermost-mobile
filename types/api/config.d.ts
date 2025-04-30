@@ -121,6 +121,8 @@ interface ClientConfig {
     FeatureFlagCollapsedThreads?: string;
     FeatureFlagPostPriority?: string;
     FeatureFlagChannelBookmarks?: string;
+    FeatureFlagExperimentalCrossTeamSearch?: string;
+    FeatureFlagCustomProfileAttributes?: string;
     ForgotPasswordLink?: string;
     GfycatApiKey: string;
     GfycatApiSecret: string;
@@ -147,6 +149,9 @@ interface ClientConfig {
     MaxNotificationsPerChannel: string;
     MaxPostSize: string;
     MinimumHashtagLength: string;
+    MobileEnableBiometrics: string;
+    MobileJailbreakProtection: string;
+    MobilePreventScreenCapture: string;
     MobileExternalBrowser: string;
     OpenIdButtonColor: string;
     OpenIdButtonText: string;
@@ -196,3 +201,5 @@ interface ClientConfig {
     WebsocketSecurePort: string;
     WebsocketURL: string;
 }
+
+type SecurityClientConfig = Pick<ClientConfig, 'MobileEnableBiometrics' | 'MobileJailbreakProtection' | 'MobilePreventScreenCapture' | 'SiteName'>
