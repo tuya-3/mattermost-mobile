@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "700711530868",
+    "project_id": "tunag-chat-staging",
+    "storage_bucket": "tunag-chat-staging.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700711530868:android:da44799f83e8879ab4fc21",
+        "android_client_info": {
+          "package_name": "jp.co.stmn.tunag_android.chat.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiqs1g3r-F5LdEG5jD3Vg5ga5LG4T5fOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
