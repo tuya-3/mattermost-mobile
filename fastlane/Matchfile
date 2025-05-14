@@ -8,6 +8,6 @@
 
 git_url("git@github.com:stmninc/TUNAG-Chat2.0-secrets.git")
 storage_mode("git")
-app_identifier("jp.co.stmn.TUNAG.chat.staging")
-# app_identifier("jp.co.stmn.TUNAG.chat")
+# app_identifier("jp.co.stmn.TUNAG.chat.staging")
+app_identifier("jp.co.stmn.TUNAG.chat")
 username("shinsuke.asakura@stmn.co.jp")
