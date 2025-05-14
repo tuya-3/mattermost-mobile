@@ -1140,7 +1140,7 @@
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = UQ8HT4Q2XM;
+						DevelopmentTeam = 99GDMY3Q6H;
 						LastSwiftMigration = 1010;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -1163,7 +1163,7 @@
 					};
 					7F581D31221ED5C60099E66B = {
 						CreatedOnToolsVersion = 10.1;
-						DevelopmentTeam = UQ8HT4Q2XM;
+						DevelopmentTeam = 99GDMY3Q6H;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -2050,7 +2050,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 632;
 				DEVELOPMENT_TEAM = UQ8HT4Q2XM;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = NO99GDMY3Q6H
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Mattermost/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -2095,7 +2095,7 @@
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Mattermost/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT99GDMY3Q6H15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2147,7 +2147,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks",
+					"@executable_path/99GDMY3Q6H",
 					"@executable_path/../../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -2197,7 +2197,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks",
+					"@executable_path/99GDMY3Q6H",
 					"@executable_path/../../Frameworks",
 				);
 				MTL_FAST_MATH = YES;
@@ -2247,7 +2247,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION =99GDMY3Q6H
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
@@ -2297,7 +2297,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION =99GDMY3Q6H
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mattermost.rnbeta.MattermostShare;
