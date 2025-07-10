@@ -38,6 +38,7 @@ export function getMentionRanges(text: string): MentionRange[] {
     }
 
     const ranges: MentionRange[] = [];
+
     // Reset regex lastIndex to ensure proper execution
     MENTION_REGEX.lastIndex = 0;
     let match;
@@ -121,7 +122,7 @@ export function getDisplayCursorPosition(
         end: number;
         originalText: string;
         displayText: string;
-    }>
+    }>,
 ): number {
     if (!text || mentionReplacements.length === 0) {
         return cursorPosition;
@@ -138,7 +139,6 @@ export function getDisplayCursorPosition(
 
         // If cursor is within mention, move to end of display text
         if (cursorPosition >= replacement.start && cursorPosition <= replacement.end) {
-            const lengthDiff = replacement.displayText.length - replacement.originalText.length;
             displayPosition = replacement.start + replacement.displayText.length + offset;
             break;
         }
@@ -168,7 +168,7 @@ export function getOriginalCursorPosition(
         end: number;
         originalText: string;
         displayText: string;
-    }>
+    }>,
 ): number {
     if (!text || mentionReplacements.length === 0) {
         return displayCursorPosition;
@@ -235,6 +235,7 @@ export function willInvadeMentionArea(
             if (key === 'ArrowRight' && currentPosition < range.start && nextPosition >= range.start) {
                 return {willInvade: true, safePosition: range.start};
             }
+
             // Left arrow invading mention area
             if (key === 'ArrowLeft') {
                 if (currentPosition > range.end && nextPosition < range.end && nextPosition >= range.start) {

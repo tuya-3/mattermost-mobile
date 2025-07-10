@@ -17,7 +17,7 @@ type OwnProps = {
 const enhanced = withObservables(['channelId'], ({database, channelId}: WithDatabaseArgs & OwnProps) => {
     const scheduledPostsEnabled = observeScheduledPostEnabled(database);
     const channelUsers = channelId ? queryUsersOnChannel(database, channelId).observe() : [];
-    
+
     return {
         scheduledPostsEnabled,
         channelUsers,

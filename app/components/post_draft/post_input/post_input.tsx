@@ -23,11 +23,11 @@ import {t} from '@i18n';
 import NavigationStore from '@store/navigation_store';
 import {handleDraftUpdate} from '@utils/draft';
 import {extractFileInfo} from '@utils/file';
-import {changeOpacity, makeStyleSheetFromTheme, getKeyboardAppearanceFromTheme} from '@utils/theme';
 import {getSafeCursorPosition} from '@utils/mention_utils';
+import {changeOpacity, makeStyleSheetFromTheme, getKeyboardAppearanceFromTheme} from '@utils/theme';
 
-import type {AvailableScreens} from '@typings/screens/navigation';
 import type UserModel from '@typings/database/models/servers/user';
+import type {AvailableScreens} from '@typings/screens/navigation';
 
 type Props = {
     testID?: string;
@@ -119,7 +119,6 @@ export default function PostInput({
     sendMessage,
     inputRef,
     setIsFocused,
-    channelUsers = [],
 }: Props) {
     const intl = useIntl();
     const isTablet = useIsTablet();
@@ -196,9 +195,16 @@ export default function PostInput({
     const handlePostDraftSelectionChanged = useCallback((event: NativeSyntheticEvent<TextInputSelectionChangeEventData> | null, fromHandleTextChange = false) => {
         const cp = fromHandleTextChange ? cursorPosition : event!.nativeEvent.selection.end;
 
-        // Adjust cursor position to avoid mention areas
+        // TODO: CRITICAL - Fix cursor movement restriction after mention completion
+        // PROBLEM: getSafeCursorPosition() always moves cursor to end of mention when user tries to position inside
+        // IMPACT: Users cannot edit text before mentions (@user) or place cursor inside mention text
+        // RELATED FILES:
+        //   - app/utils/mention_utils.ts (getSafeCursorPosition function - main logic)
+        //   - app/components/mention_overlay/mention_overlay.tsx (display coordination)
+        //   - app/components/post_draft/draft_input/draft_input.tsx (MentionOverlay usage)
+        // SOLUTION: Allow cursor positioning anywhere in normal editing mode, only restrict during autocomplete
         const safeCursorPosition = getSafeCursorPosition(value, cp);
-        
+
         // If cursor position was adjusted, update the TextInput
         if (safeCursorPosition !== cp && inputRef.current) {
             inputRef.current.setNativeProps({
@@ -335,17 +341,17 @@ export default function PostInput({
     // Handle mention deletion on backspace/delete
     const handleKeyPress = useCallback((event: any) => {
         const {key} = event.nativeEvent;
-        
+
         if (key === 'Backspace' || key === 'Delete') {
             const {handleMentionDeletion} = require('@utils/mention_utils');
-            
+
             const deletionResult = handleMentionDeletion(value, cursorPosition, key);
-            
+
             if (deletionResult.shouldDelete && deletionResult.newText !== undefined) {
                 // Prevent default deletion and handle mention deletion
                 event.preventDefault();
                 updateValue(deletionResult.newText);
-                
+
                 if (deletionResult.newPosition !== undefined) {
                     setTimeout(() => {
                         if (inputRef.current) {
@@ -388,7 +394,7 @@ export default function PostInput({
             smartPunctuation='disable'
             submitBehavior='newline'
             style={pasteInputStyle}
-            selectionColor="transparent"
+            selectionColor='transparent'
             testID={testID}
             underlineColorAndroid='transparent'
             textContentType='none'

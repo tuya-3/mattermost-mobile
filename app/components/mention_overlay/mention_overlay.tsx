@@ -26,14 +26,14 @@ const MentionOverlay = ({
     cursorPosition = 0,
 }: Props) => {
     const theme = useTheme();
-    
+
     // Cursor blinking animation
     const blinkAnim = useRef(new Animated.Value(1)).current;
-    
+
     useEffect(() => {
         // Reset animation value before starting
         blinkAnim.setValue(1);
-        
+
         const blinkAnimation = Animated.loop(
             Animated.sequence([
                 Animated.timing(blinkAnim, {
@@ -46,21 +46,21 @@ const MentionOverlay = ({
                     duration: 530,
                     useNativeDriver: true,
                 }),
-            ])
+            ]),
         );
-        
+
         blinkAnimation.start();
-        
+
         return () => {
             blinkAnimation.stop();
             blinkAnim.setValue(1); // Reset value on cleanup
         };
     }, [text, cursorPosition]); // Add dependencies to restart animation
-    
+
     // Create usersByUsername map
     const usersByUsername = useMemo(() => {
         const map = new Map<string, UserModel>();
-        users.forEach(user => {
+        users.forEach((user) => {
             if (user.username) {
                 map.set(user.username, user);
             }
@@ -78,7 +78,7 @@ const MentionOverlay = ({
         if (mentionRanges.length === 0) {
             return [{text, isMention: false}];
         }
-        
+
         const segments: Array<{
             text: string;
             isMention: boolean;
@@ -86,9 +86,9 @@ const MentionOverlay = ({
             originalLength?: number;
             displayLength?: number;
         }> = [];
-        
+
         let lastIndex = 0;
-        
+
         for (const range of mentionRanges) {
             // Add text before mention
             if (range.start > lastIndex) {
@@ -97,12 +97,12 @@ const MentionOverlay = ({
                     isMention: false,
                 });
             }
-            
+
             // Process mention
             const mentionText = text.substring(range.start, range.end);
             const username = mentionText.substring(1); // Remove @
             const user = usersByUsername.get(username);
-            
+
             if (user) {
                 let displayText = username;
                 if (user.firstName && user.lastName) {
@@ -110,7 +110,7 @@ const MentionOverlay = ({
                 } else if (user.nickname) {
                     displayText = user.nickname;
                 }
-                
+
                 segments.push({
                     text: mentionText,
                     isMention: true,
@@ -125,10 +125,10 @@ const MentionOverlay = ({
                     isMention: false,
                 });
             }
-            
+
             lastIndex = range.end;
         }
-        
+
         // Add remaining text
         if (lastIndex < text.length) {
             segments.push({
@@ -136,13 +136,13 @@ const MentionOverlay = ({
                 isMention: false,
             });
         }
-        
+
         return segments;
     }, [text, mentionRanges, usersByUsername]);
 
     // Create the complete display text for proper text flow
     const completeDisplayText = useMemo(() => {
-        return displayTextSegments.map(segment => {
+        return displayTextSegments.map((segment) => {
             if (segment.isMention && segment.displayText) {
                 return segment.displayText;
             }
@@ -154,15 +154,15 @@ const MentionOverlay = ({
     const displayCursorPosition = useMemo(() => {
         let originalPos = 0;
         let displayPos = 0;
-        
+
         for (const segment of displayTextSegments) {
             const segmentOriginalLength = segment.originalLength || segment.text.length;
             const segmentDisplayLength = segment.displayLength || segment.text.length;
-            
+
             if (originalPos + segmentOriginalLength >= cursorPosition) {
                 // Cursor is within this segment
                 const offsetInSegment = cursorPosition - originalPos;
-                
+
                 if (segment.isMention && segment.displayText) {
                     // For mentions, cursor should be at the end of the display text
                     if (offsetInSegment >= segmentOriginalLength) {
@@ -177,45 +177,54 @@ const MentionOverlay = ({
                 }
                 break;
             }
-            
+
             originalPos += segmentOriginalLength;
             displayPos += segmentDisplayLength;
         }
-        
+
         return displayPos;
     }, [displayTextSegments, cursorPosition]);
 
     const styles = getStyleSheet(theme);
 
     // Check if we have mentions to replace
-    const hasMentions = displayTextSegments.some(segment => segment.isMention && segment.displayText);
-    
+    const hasMentions = displayTextSegments.some((segment) => segment.isMention && segment.displayText);
+
     // Always show cursor, only hide if no text at all
     if (!text) {
         return null;
     }
 
     return (
-        <View style={styles.overlay} pointerEvents="none">
+        <View
+            style={styles.overlay}
+            pointerEvents='none'
+        >
             {hasMentions && (
                 <>
                     {/* Background layer - hides original text */}
                     <Text style={[styles.overlayText, styles.backgroundText]}>
                         {text}
                     </Text>
-                    
+
                     {/* Foreground layer - shows display text with mentions replaced */}
                     <Text style={[styles.overlayText, styles.foregroundText]}>
                         {displayTextSegments.map((segment, index) => {
                             if (segment.isMention && segment.displayText) {
                                 return (
-                                    <Text key={index} style={styles.mentionText}>
+                                    <Text
+                                        key={index}
+                                        style={styles.mentionText}
+                                    >
                                         {segment.displayText}
                                     </Text>
                                 );
                             }
                             return (
-                                <Text key={index} style={styles.normalText}>
+                                <Text
+                                    key={index}
+                                    style={styles.normalText}
+                                >
                                     {segment.text}
                                 </Text>
                             );
@@ -223,7 +232,7 @@ const MentionOverlay = ({
                     </Text>
                 </>
             )}
-            
+
             {/* Cursor layer - always show cursor when there's text */}
             <View style={styles.cursorContainer}>
                 <Text style={styles.invisibleText}>
@@ -232,10 +241,10 @@ const MentionOverlay = ({
                 <Animated.Text
                     style={[
                         styles.cursor,
-                        {opacity: blinkAnim}
+                        {opacity: blinkAnim},
                     ]}
                 >
-                    |
+                    {'|'}
                 </Animated.Text>
             </View>
         </View>
