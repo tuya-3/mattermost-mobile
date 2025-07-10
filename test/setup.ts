@@ -284,6 +284,25 @@ jest.doMock('react-native', () => {
             ...ReactNative.Animated,
             timing: jest.fn(() => ({
                 start: jest.fn((callback) => callback?.({finished: true})),
+                stop: jest.fn(),
+                reset: jest.fn(),
+            })),
+            loop: jest.fn((animation) => ({
+                start: jest.fn((callback) => callback?.({finished: true})),
+                stop: jest.fn(),
+                reset: jest.fn(),
+            })),
+            sequence: jest.fn((animations) => ({
+                start: jest.fn((callback) => callback?.({finished: true})),
+                stop: jest.fn(),
+                reset: jest.fn(),
+            })),
+            Value: jest.fn(() => ({
+                setValue: jest.fn(),
+                addListener: jest.fn(),
+                removeListener: jest.fn(),
+                removeAllListeners: jest.fn(),
+                interpolate: jest.fn(),
             })),
         },
     }, ReactNative);
