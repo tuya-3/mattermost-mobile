@@ -287,12 +287,12 @@ jest.doMock('react-native', () => {
                 stop: jest.fn(),
                 reset: jest.fn(),
             })),
-            loop: jest.fn((animation) => ({
+            loop: jest.fn(() => ({
                 start: jest.fn((callback) => callback?.({finished: true})),
                 stop: jest.fn(),
                 reset: jest.fn(),
             })),
-            sequence: jest.fn((animations) => ({
+            sequence: jest.fn(() => ({
                 start: jest.fn((callback) => callback?.({finished: true})),
                 stop: jest.fn(),
                 reset: jest.fn(),
