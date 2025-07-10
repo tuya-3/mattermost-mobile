@@ -95,10 +95,8 @@ export function setNavigatorStyles(componentId: string, theme: Theme, additional
             rightButtonColor: theme.sidebarHeaderTextColor,
         },
         statusBar: {
-            backgroundColor: 'transparent',
+            backgroundColor: theme.sidebarBg,
             style: isDark ? 'light' : 'dark',
-            translucent: false,
-            drawBehind: true,
         },
     };
 

@@ -61,9 +61,6 @@
         android:launchMode="singleTask"
         android:exported="true"
         android:taskAffinity=""
-        android:windowTranslucentStatus="false"
-        android:windowTranslucentNavigation="false"
-        android:windowLayoutInDisplayCutoutMode="shortEdges"
       >
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
