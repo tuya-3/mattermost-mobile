@@ -104,34 +104,44 @@ exports[`Server Icon Server Icon Component should match snapshot with mentions 1
       size={24}
     />
     <Text
-      collapsable={false}
       numberOfLines={1}
       style={
-        {
-          "alignSelf": "flex-end",
-          "backgroundColor": "#ffffff",
-          "borderColor": "#162545",
-          "borderRadius": 11,
-          "borderWidth": 2,
-          "color": "#1e325c",
-          "fontFamily": "OpenSans-Bold",
-          "fontSize": 12,
-          "height": 22,
-          "left": 13,
-          "lineHeight": 16.5,
-          "minWidth": 26,
-          "opacity": 1,
-          "overflow": "hidden",
-          "paddingHorizontal": 5,
-          "position": "absolute",
-          "textAlign": "center",
-          "top": -8,
-          "transform": [
-            {
-              "scale": 1,
-            },
-          ],
-        }
+        [
+          {
+            "backgroundColor": "#ffffff",
+            "borderColor": "#162545",
+            "borderRadius": 11,
+            "color": "#1e325c",
+            "fontSize": 12,
+            "height": 22,
+            "lineHeight": 16.5,
+            "minWidth": 26,
+            "opacity": 1,
+            "transform": [
+              {
+                "scale": 1,
+              },
+            ],
+          },
+          {
+            "alignSelf": "flex-end",
+            "borderWidth": 2,
+            "fontFamily": "OpenSans-Bold",
+            "left": 15,
+            "overflow": "hidden",
+            "paddingHorizontal": 4,
+            "position": "absolute",
+            "textAlign": "center",
+            "top": -1,
+          },
+          {
+            "paddingHorizontal": 5,
+          },
+          {
+            "left": 13,
+            "top": -8,
+          },
+        ]
       }
       testID="server_icon.badge"
     >
@@ -192,34 +202,44 @@ exports[`Server Icon Server Icon Component should match snapshot with unreads 1`
       size={24}
     />
     <Text
-      collapsable={false}
       numberOfLines={1}
       style={
-        {
-          "alignSelf": "flex-end",
-          "backgroundColor": "#ffffff",
-          "borderColor": "#162545",
-          "borderRadius": 6,
-          "borderWidth": 2,
-          "color": "#1e325c",
-          "fontFamily": "OpenSans-Bold",
-          "fontSize": 12,
-          "height": 12,
-          "left": 18,
-          "lineHeight": 16.5,
-          "minWidth": 12,
-          "opacity": 1,
-          "overflow": "hidden",
-          "paddingHorizontal": 0,
-          "position": "absolute",
-          "textAlign": "center",
-          "top": -5,
-          "transform": [
-            {
-              "scale": 1,
-            },
-          ],
-        }
+        [
+          {
+            "backgroundColor": "#ffffff",
+            "borderColor": "#162545",
+            "borderRadius": 6,
+            "color": "#1e325c",
+            "fontSize": 12,
+            "height": 12,
+            "lineHeight": 16.5,
+            "minWidth": 12,
+            "opacity": 1,
+            "transform": [
+              {
+                "scale": 1,
+              },
+            ],
+          },
+          {
+            "alignSelf": "flex-end",
+            "borderWidth": 2,
+            "fontFamily": "OpenSans-Bold",
+            "left": 15,
+            "overflow": "hidden",
+            "paddingHorizontal": 4,
+            "position": "absolute",
+            "textAlign": "center",
+            "top": -1,
+          },
+          {
+            "paddingHorizontal": 0,
+          },
+          {
+            "left": 18,
+            "top": -5,
+          },
+        ]
       }
       testID="server_icon.badge"
     />

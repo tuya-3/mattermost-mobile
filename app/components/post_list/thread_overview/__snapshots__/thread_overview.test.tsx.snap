@@ -72,12 +72,15 @@ exports[`ThreadOverview should match snapshot when post is saved and has replies
     >
       <View
         accessible={true}
-        collapsable={false}
         style={
-          {
-            "marginLeft": 16,
-            "opacity": 1,
-          }
+          [
+            {
+              "marginLeft": 16,
+            },
+            {
+              "opacity": 1,
+            },
+          ]
         }
       >
         <Icon
@@ -111,12 +114,15 @@ exports[`ThreadOverview should match snapshot when post is saved and has replies
     >
       <View
         accessible={true}
-        collapsable={false}
         style={
-          {
-            "marginLeft": 16,
-            "opacity": 1,
-          }
+          [
+            {
+              "marginLeft": 16,
+            },
+            {
+              "opacity": 1,
+            },
+          ]
         }
       >
         <Icon
