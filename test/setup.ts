@@ -317,52 +317,71 @@ jest.doMock('react-native', () => {
 
                     const processed: any = {};
                     for (const key in s) {
-                        const value = s[key];
-                        if (key === 'transform' && Array.isArray(value)) {
-                            processed[key] = value.map((t: any) => {
-                                const transformObj: any = {};
-                                for (const tKey in t) {
-                                    const tValue = t[tKey];
+                        if (Object.prototype.hasOwnProperty.call(s, key)) {
+                            const value = s[key];
+                            if (key === 'transform' && Array.isArray(value)) {
+                                processed[key] = value.map((t: any) => {
+                                    const transformObj: any = {};
+                                    for (const tKey in t) {
+                                        if (Object.prototype.hasOwnProperty.call(t, tKey)) {
+                                            const tValue = t[tKey];
 
-                                    // Check if it's an Animated.Value or interpolated value
-                                    if (tValue && typeof tValue === 'object' && '_value' in tValue) {
-                                        transformObj[tKey] = tValue._value;
-                                    } else if (tValue && typeof tValue === 'object' && '__getValue' in tValue) {
-                                        transformObj[tKey] = tValue.__getValue();
-                                    } else if (tValue && typeof tValue === 'object' && 'setValue' in tValue) {
-                                        // This is likely an Animated.Value - ensure we get a valid number
-                                        const numValue = tValue.__getValue ? tValue.__getValue() : 
-                                                       (tValue.valueOf ? tValue.valueOf() : 
-                                                       (tValue._value !== undefined ? tValue._value : 0));
-                                        transformObj[tKey] = typeof numValue === 'number' ? numValue : 0;
-                                    } else if (tValue && typeof tValue === 'object' && 'valueOf' in tValue) {
-                                        // Use valueOf for automatic number conversion
-                                        const numValue = tValue.valueOf();
-                                        transformObj[tKey] = typeof numValue === 'number' ? numValue : 0;
-                                    } else if (typeof tValue === 'number') {
-                                        transformObj[tKey] = tValue;
-                                    } else {
-                                        // For any other case, default to 0 to prevent NaN
-                                        transformObj[tKey] = 0;
+                                            // Check if it's an Animated.Value or interpolated value
+                                            if (tValue && typeof tValue === 'object' && '_value' in tValue) {
+                                                transformObj[tKey] = tValue._value;
+                                            } else if (tValue && typeof tValue === 'object' && '__getValue' in tValue) {
+                                                transformObj[tKey] = tValue.__getValue();
+                                            } else if (tValue && typeof tValue === 'object' && 'setValue' in tValue) {
+                                                // This is likely an Animated.Value - ensure we get a valid number
+                                                let numValue: number;
+                                                if (tValue.__getValue) {
+                                                    numValue = tValue.__getValue();
+                                                } else if (tValue.valueOf) {
+                                                    numValue = tValue.valueOf();
+                                                } else if (typeof tValue._value === 'number') {
+                                                    numValue = tValue._value;
+                                                } else {
+                                                    numValue = 0;
+                                                }
+                                                transformObj[tKey] = typeof numValue === 'number' ? numValue : 0;
+                                            } else if (tValue && typeof tValue === 'object' && 'valueOf' in tValue) {
+                                                // Use valueOf for automatic number conversion
+                                                const numValue = tValue.valueOf();
+                                                transformObj[tKey] = typeof numValue === 'number' ? numValue : 0;
+                                            } else if (typeof tValue === 'number') {
+                                                transformObj[tKey] = tValue;
+                                            } else {
+                                                // For any other case, default to 0 to prevent NaN
+                                                transformObj[tKey] = 0;
+                                            }
+                                        }
                                     }
+                                    return transformObj;
+                                });
+                            } else if (value && typeof value === 'object' && '_value' in value) {
+                                processed[key] = value._value;
+                            } else if (value && typeof value === 'object' && '__getValue' in value) {
+                                processed[key] = value.__getValue();
+                            } else if (value && typeof value === 'object' && 'setValue' in value) {
+                                // This is likely an Animated.Value - ensure we get the numeric value
+                                let numValue: number;
+                                if (value.__getValue) {
+                                    numValue = value.__getValue();
+                                } else if (value.valueOf) {
+                                    numValue = value.valueOf();
+                                } else if (typeof value._value === 'number') {
+                                    numValue = value._value;
+                                } else {
+                                    numValue = 0;
                                 }
-                                return transformObj;
-                            });
-                        } else if (value && typeof value === 'object' && '_value' in value) {
-                            processed[key] = value._value;
-                        } else if (value && typeof value === 'object' && '__getValue' in value) {
-                            processed[key] = value.__getValue();
-                        } else if (value && typeof value === 'object' && 'setValue' in value) {
-                            // This is likely an Animated.Value - ensure we get the numeric value
-                            processed[key] = value.__getValue ? value.__getValue() : 
-                                           (value.valueOf ? value.valueOf() : 
-                                           (value._value !== undefined ? value._value : 0));
-                        } else if (value && typeof value === 'object' && 'valueOf' in value) {
-                            // Use valueOf for automatic number conversion
-                            const numValue = value.valueOf();
-                            processed[key] = typeof numValue === 'number' ? numValue : 0;
-                        } else {
-                            processed[key] = value;
+                                processed[key] = numValue;
+                            } else if (value && typeof value === 'object' && 'valueOf' in value) {
+                                // Use valueOf for automatic number conversion
+                                const numValue = value.valueOf();
+                                processed[key] = typeof numValue === 'number' ? numValue : 0;
+                            } else {
+                                processed[key] = value;
+                            }
                         }
                     }
                     return processed;
@@ -400,7 +419,7 @@ jest.doMock('react-native', () => {
                                 for (let i = 0; i < inputRange.length - 1; i++) {
                                     if (currentValue >= inputRange[i] && currentValue <= inputRange[i + 1]) {
                                         const ratio = (currentValue - inputRange[i]) / (inputRange[i + 1] - inputRange[i]);
-                                        const interpolatedValue = outputRange[i] + ratio * (outputRange[i + 1] - outputRange[i]);
+                                        const interpolatedValue = outputRange[i] + (ratio * (outputRange[i + 1] - outputRange[i]));
                                         return createAnimatedValue(interpolatedValue);
                                     }
                                 }
@@ -413,7 +432,7 @@ jest.doMock('react-native', () => {
                         // Make this behave like a primitive number in all contexts
                         valueOf: () => animatedValue._value,
                         toString: () => String(animatedValue._value),
-                        
+
                         // For JSON serialization (snapshots)
                         [Symbol.toPrimitive]: (hint: string) => {
                             if (hint === 'number') {
@@ -422,14 +441,6 @@ jest.doMock('react-native', () => {
                             return String(animatedValue._value);
                         },
                     };
-
-                    // Make arithmetic operations work
-                    Object.defineProperty(animatedValue, Symbol.toPrimitive, {
-                        value: (hint: string) => {
-                            return hint === 'number' ? animatedValue._value : String(animatedValue._value);
-                        },
-                        configurable: true,
-                    });
 
                     return animatedValue;
                 };
@@ -441,10 +452,10 @@ jest.doMock('react-native', () => {
 });
 
 jest.mock('react-native-vector-icons', () => {
-    const React = jest.requireActual('react');
-    class CompassIcon extends React.PureComponent {
+    const ReactForIcon = jest.requireActual('react');
+    class CompassIcon extends ReactForIcon.PureComponent {
         render() {
-            return React.createElement('Icon', this.props);
+            return ReactForIcon.createElement('Icon', this.props);
         }
     }
     CompassIcon.getImageSource = jest.fn().mockResolvedValue({});

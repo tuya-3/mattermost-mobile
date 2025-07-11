@@ -1228,13 +1228,14 @@ class TestHelperSingleton {
 
         // Cleanup all server databases
         const serverUrls = Object.keys(DatabaseManager.serverDatabases);
-        for (const serverUrl of serverUrls) {
+        const cleanupPromises = serverUrls.map(async (serverUrl) => {
             try {
                 await DatabaseManager.destroyServerDatabase(serverUrl);
             } catch (error) {
                 // Ignore cleanup errors
             }
-        }
+        });
+        await Promise.all(cleanupPromises);
 
         // Clear the databases reference
         DatabaseManager.serverDatabases = {};

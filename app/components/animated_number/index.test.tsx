@@ -10,12 +10,15 @@ import AnimatedNumber from '.';
 const NUMBER_HEIGHT = 10;
 
 describe('AnimatedNumber', () => {
+
     // running on jest, since Animated is a native module, Animated.timing.start needs to be mocked in order to update to the final Animated.Value.
     // Ex: 1 => 2, the Animated.Value should be -20 (from -10) after the animation is done
     jest.spyOn(Animated, 'timing').mockImplementation((a, b) => ({
 
         // @ts-expect-error mock implementation for testing
         start: jest.fn().mockImplementation(() => a.setValue(b.toValue)),
+        stop: jest.fn(),
+        reset: jest.fn(),
     }) as unknown as Animated.CompositeAnimation);
 
     it('should render the non-animated number', () => {
@@ -97,7 +100,11 @@ describe('AnimatedNumber', () => {
 
             fireEvent(text, 'onLayout', {nativeEvent: {layout: {height: NUMBER_HEIGHT}}});
 
+            // Force a complete re-render by unmounting and remounting
             screen.rerender(<AnimatedNumber animateToNumber={animateToNumber}/>);
+
+            // Give a moment for useEffect to trigger
+            await new Promise((resolve) => setTimeout(resolve, 10));
 
             const animateToNumberString = String(Math.abs(animateToNumber));
             const checkEachDigit = animateToNumberString.split('').map(async (number, index) => {
