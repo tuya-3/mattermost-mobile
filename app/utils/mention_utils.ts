@@ -93,6 +93,12 @@ export function getSafeCursorPosition(text: string, targetPosition: number): num
     }
 
     const mentionRanges = getMentionRanges(text);
+    
+    // If no mentions found, return the original target position (clamped to text bounds)
+    if (mentionRanges.length === 0) {
+        return Math.max(0, Math.min(targetPosition, text.length));
+    }
+
     let newPosition = targetPosition;
 
     for (const range of mentionRanges) {
