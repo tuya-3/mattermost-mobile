@@ -54,9 +54,10 @@ describe('AnimatedNumber', () => {
     describe.each([1, 23, 579, -123, 6789, 23456])('should show the correct number of animated views based on the digits', (animateToNumber: number) => {
         const isNegative = animateToNumber < 0;
         const numberOfDigits = Math.abs(animateToNumber).toString().length;
+
         // For negative numbers: minus sign + digits, for positive: only digits
         const expectedChildrenCount = isNegative ? numberOfDigits + 1 : numberOfDigits;
-        
+
         it(`should display ${expectedChildrenCount} child element(s) for ${animateToNumber}`, async () => {
             render(<AnimatedNumber animateToNumber={animateToNumber}/>);
 
@@ -90,6 +91,7 @@ describe('AnimatedNumber', () => {
                 expect(transformedView.props.style.transform[0]).toHaveProperty('translateY');
                 const {translateY} = transformedView.props.style.transform[0];
                 expect(typeof translateY).toBe('number');
+
                 // Verify the digit is within reasonable range (0-9 * NUMBER_HEIGHT)
                 expect(Math.abs(translateY)).toBeLessThanOrEqual(9 * NUMBER_HEIGHT);
             });
@@ -122,7 +124,7 @@ describe('AnimatedNumber', () => {
             const numberOfDigits = animateToNumberString.length;
             const isNegative = animateToNumber < 0;
             const expectedChildrenCount = isNegative ? numberOfDigits + 1 : numberOfDigits;
-            
+
             // Check that we have the correct number of child elements (including minus sign for negative numbers)
             const animatedView = screen.getByTestId('animation-number-main');
             expect(animatedView.children).toHaveLength(expectedChildrenCount);
@@ -131,7 +133,7 @@ describe('AnimatedNumber', () => {
             for (let index = 0; index < numberOfDigits; index++) {
                 const useIndex = numberOfDigits - 1 - index;
                 const transformedView = screen.getByTestId(`animated-number-view-${useIndex}`);
-                
+
                 // Verify the view exists and has a transform
                 expect(transformedView).toBeTruthy();
                 expect(transformedView.props.style.transform).toBeDefined();
