@@ -70,7 +70,7 @@ describe('DraftInput', () => {
         const server = await TestHelper.setupServerDatabase(SERVER_URL);
         database = server.database;
         operator = server.operator;
-    });
+    }, 15000); // Increase timeout for CI environment
 
     afterEach(async () => {
         // Cleanup database connections first
@@ -93,7 +93,7 @@ describe('DraftInput', () => {
         jest.clearAllTimers();
         jest.useRealTimers();
         await new Promise((resolve) => setImmediate(resolve));
-    });
+    }, 15000); // Increase timeout for CI environment
 
     describe('Rendering', () => {
         it('renders all required components', async () => {
