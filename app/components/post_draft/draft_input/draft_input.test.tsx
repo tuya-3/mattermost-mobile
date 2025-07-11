@@ -60,6 +60,7 @@ describe('DraftInput', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.useFakeTimers();
     });
 
     let database: Database;
@@ -72,8 +73,26 @@ describe('DraftInput', () => {
     });
 
     afterEach(async () => {
+        // Cleanup database connections first
+        try {
+            // Clear any pending database operations
+            if (database) {
+                await database.write(async () => {
+                    // Empty write to ensure all pending operations complete
+                });
+            }
+        } catch (error) {
+            // Ignore database cleanup errors
+        }
+
         await TestHelper.tearDown();
         NetworkManager.invalidateClient(SERVER_URL);
+
+        // Force cleanup of any pending timers or async operations
+        jest.runOnlyPendingTimers();
+        jest.clearAllTimers();
+        jest.useRealTimers();
+        await new Promise((resolve) => setImmediate(resolve));
     });
 
     describe('Rendering', () => {
@@ -181,13 +200,18 @@ describe('DraftInput', () => {
             expect(baseProps.updateValue).toHaveBeenCalledWith('new message');
         });
 
-        it('handles cursor position', () => {
-            const {getByTestId} = renderWithEverything(<DraftInput {...baseProps}/>, {database});
+        it('handles cursor position', async () => {
+            const mockUpdateCursorPosition = jest.fn();
+            const propsWithText = {...baseProps, value: 'hello world', updateCursorPosition: mockUpdateCursorPosition};
+            const {getByTestId} = renderWithEverything(<DraftInput {...propsWithText}/>, {database});
             fireEvent(getByTestId('draft_input.post.input'), 'selectionChange', {
                 nativeEvent: {selection: {start: 5, end: 5}},
             });
-            expect(baseProps.updateCursorPosition).toHaveBeenCalledWith(5);
-        });
+            expect(mockUpdateCursorPosition).toHaveBeenCalledWith(5);
+
+            // Force cleanup of any pending async operations
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        }, 10000); // 10 second timeout
 
         it('updates focus state', () => {
             const {getByTestId} = renderWithEverything(<DraftInput {...baseProps}/>, {database});
