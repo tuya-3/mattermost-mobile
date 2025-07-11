@@ -1226,6 +1226,22 @@ class TestHelperSingleton {
     tearDown = async () => {
         nock.restore();
 
+        // Cleanup all server databases
+        const serverUrls = Object.keys(DatabaseManager.serverDatabases);
+        for (const serverUrl of serverUrls) {
+            try {
+                await DatabaseManager.destroyServerDatabase(serverUrl);
+            } catch (error) {
+                // Ignore cleanup errors
+            }
+        }
+
+        // Clear the databases reference
+        DatabaseManager.serverDatabases = {};
+
+        // Force cleanup of any pending async operations
+        await new Promise((resolve) => setImmediate(resolve));
+
         this.basicClient = null;
         this.basicUser = null;
         this.basicTeam = null;
