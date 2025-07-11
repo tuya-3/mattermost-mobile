@@ -5,6 +5,8 @@
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/splashscreen_bg</item>
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <!-- TODO: Android 15への一時的な対応としてEdgeToEdgeをオプトアウトする対応を追加した。本家のMattermostでの修正を待ち、本対応を削除すること。 -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
 
     </style>
 
