@@ -55,12 +55,10 @@ describe('DraftInput', () => {
         updatePostInputTop: jest.fn(),
         setIsFocused: jest.fn(),
         scheduledPostsEnabled: true,
-        channelUsers: [],
     };
 
     beforeEach(() => {
         jest.clearAllMocks();
-        jest.useFakeTimers();
     });
 
     let database: Database;
@@ -70,30 +68,12 @@ describe('DraftInput', () => {
         const server = await TestHelper.setupServerDatabase(SERVER_URL);
         database = server.database;
         operator = server.operator;
-    }, 15000); // Increase timeout for CI environment
+    });
 
     afterEach(async () => {
-        // Cleanup database connections first
-        try {
-            // Clear any pending database operations
-            if (database) {
-                await database.write(async () => {
-                    // Empty write to ensure all pending operations complete
-                });
-            }
-        } catch (error) {
-            // Ignore database cleanup errors
-        }
-
         await TestHelper.tearDown();
         NetworkManager.invalidateClient(SERVER_URL);
-
-        // Force cleanup of any pending timers or async operations
-        jest.runOnlyPendingTimers();
-        jest.clearAllTimers();
-        jest.useRealTimers();
-        await new Promise((resolve) => setImmediate(resolve));
-    }, 15000); // Increase timeout for CI environment
+    });
 
     describe('Rendering', () => {
         it('renders all required components', async () => {
@@ -200,18 +180,13 @@ describe('DraftInput', () => {
             expect(baseProps.updateValue).toHaveBeenCalledWith('new message');
         });
 
-        it('handles cursor position', async () => {
-            const mockUpdateCursorPosition = jest.fn();
-            const propsWithText = {...baseProps, value: 'hello world', updateCursorPosition: mockUpdateCursorPosition};
-            const {getByTestId} = renderWithEverything(<DraftInput {...propsWithText}/>, {database});
+        it('handles cursor position', () => {
+            const {getByTestId} = renderWithEverything(<DraftInput {...baseProps}/>, {database});
             fireEvent(getByTestId('draft_input.post.input'), 'selectionChange', {
                 nativeEvent: {selection: {start: 5, end: 5}},
             });
-            expect(mockUpdateCursorPosition).toHaveBeenCalledWith(5);
-
-            // Force cleanup of any pending async operations
-            await new Promise((resolve) => setTimeout(resolve, 0));
-        }, 10000); // 10 second timeout
+            expect(baseProps.updateCursorPosition).toHaveBeenCalledWith(5);
+        });
 
         it('updates focus state', () => {
             const {getByTestId} = renderWithEverything(<DraftInput {...baseProps}/>, {database});

@@ -4,7 +4,6 @@
 /* eslint-disable react/no-multi-comp */
 
 import {setGenerator} from '@nozbe/watermelondb/utils/common/randomId';
-import * as React from 'react';
 import * as ReactNative from 'react-native';
 import mockSafeAreaContext from 'react-native-safe-area-context/jest/mock';
 import {v4 as uuidv4} from 'uuid';
@@ -283,14 +282,8 @@ jest.doMock('react-native', () => {
         Keyboard,
         Animated: {
             ...ReactNative.Animated,
-            timing: jest.fn((value, config) => ({
-                start: jest.fn((callback) => {
-                    // Simulate the animation completing by setting the final value
-                    if (config && typeof config.toValue !== 'undefined') {
-                        value.setValue(config.toValue);
-                    }
-                    callback?.({finished: true});
-                }),
+            timing: jest.fn(() => ({
+                start: jest.fn((callback) => callback?.({finished: true})),
                 stop: jest.fn(),
                 reset: jest.fn(),
             })),
@@ -304,158 +297,15 @@ jest.doMock('react-native', () => {
                 stop: jest.fn(),
                 reset: jest.fn(),
             })),
-            View: (props: any) => {
-                // Process animated values in style
-                const processStyle = (s: any): any => {
-                    if (!s) {
-                        return s;
-                    }
-
-                    if (Array.isArray(s)) {
-                        return s.map(processStyle);
-                    }
-
-                    const processed: any = {};
-                    for (const key in s) {
-                        if (Object.prototype.hasOwnProperty.call(s, key)) {
-                            const value = s[key];
-                            if (key === 'transform' && Array.isArray(value)) {
-                                processed[key] = value.map((t: any) => {
-                                    const transformObj: any = {};
-                                    for (const tKey in t) {
-                                        if (Object.prototype.hasOwnProperty.call(t, tKey)) {
-                                            const tValue = t[tKey];
-
-                                            // Check if it's an Animated.Value or interpolated value
-                                            if (tValue && typeof tValue === 'object' && '_value' in tValue) {
-                                                transformObj[tKey] = tValue._value;
-                                            } else if (tValue && typeof tValue === 'object' && '__getValue' in tValue) {
-                                                transformObj[tKey] = tValue.__getValue();
-                                            } else if (tValue && typeof tValue === 'object' && 'setValue' in tValue) {
-                                                // This is likely an Animated.Value - ensure we get a valid number
-                                                let numValue: number;
-                                                if (tValue.__getValue) {
-                                                    numValue = tValue.__getValue();
-                                                } else if (tValue.valueOf) {
-                                                    numValue = tValue.valueOf();
-                                                } else if (typeof tValue._value === 'number') {
-                                                    numValue = tValue._value;
-                                                } else {
-                                                    numValue = 0;
-                                                }
-                                                transformObj[tKey] = typeof numValue === 'number' ? numValue : 0;
-                                            } else if (tValue && typeof tValue === 'object' && 'valueOf' in tValue) {
-                                                // Use valueOf for automatic number conversion
-                                                const numValue = tValue.valueOf();
-                                                transformObj[tKey] = typeof numValue === 'number' ? numValue : 0;
-                                            } else if (typeof tValue === 'number') {
-                                                transformObj[tKey] = tValue;
-                                            } else {
-                                                // For any other case, default to 0 to prevent NaN
-                                                transformObj[tKey] = 0;
-                                            }
-                                        }
-                                    }
-                                    return transformObj;
-                                });
-                            } else if (value && typeof value === 'object' && '_value' in value) {
-                                processed[key] = value._value;
-                            } else if (value && typeof value === 'object' && '__getValue' in value) {
-                                processed[key] = value.__getValue();
-                            } else if (value && typeof value === 'object' && 'setValue' in value) {
-                                // This is likely an Animated.Value - ensure we get the numeric value
-                                let numValue: number;
-                                if (value.__getValue) {
-                                    numValue = value.__getValue();
-                                } else if (value.valueOf) {
-                                    numValue = value.valueOf();
-                                } else if (typeof value._value === 'number') {
-                                    numValue = value._value;
-                                } else {
-                                    numValue = 0;
-                                }
-                                processed[key] = numValue;
-                            } else if (value && typeof value === 'object' && 'valueOf' in value) {
-                                // Use valueOf for automatic number conversion
-                                const numValue = value.valueOf();
-                                processed[key] = typeof numValue === 'number' ? numValue : 0;
-                            } else {
-                                processed[key] = value;
-                            }
-                        }
-                    }
-                    return processed;
-                };
-
-                return React.createElement(ReactNative.View, {...props, style: processStyle(props.style)});
-            },
-            Text: (props: any) => React.createElement(ReactNative.Text, props),
-            Value: jest.fn((initialValue = 0) => {
-                // Create a proxy that behaves like a number in all contexts
-                const createAnimatedValue = (value: number) => {
-                    const animatedValue: any = {
-                        _value: value,
-                        setValue: jest.fn((newValue: number) => {
-                            animatedValue._value = newValue;
-                        }),
-                        addListener: jest.fn(),
-                        removeListener: jest.fn(),
-                        removeAllListeners: jest.fn(),
-                        interpolate: jest.fn((config: any) => {
-                            const {inputRange, outputRange} = config || {};
-
-                            if (inputRange && outputRange && inputRange.length === outputRange.length) {
-                                const currentValue: number = animatedValue._value;
-
-                                // Handle edge cases
-                                if (currentValue <= inputRange[0]) {
-                                    return createAnimatedValue(outputRange[0]);
-                                }
-                                if (currentValue >= inputRange[inputRange.length - 1]) {
-                                    return createAnimatedValue(outputRange[outputRange.length - 1]);
-                                }
-
-                                // Linear interpolation
-                                for (let i = 0; i < inputRange.length - 1; i++) {
-                                    if (currentValue >= inputRange[i] && currentValue <= inputRange[i + 1]) {
-                                        const ratio = (currentValue - inputRange[i]) / (inputRange[i + 1] - inputRange[i]);
-                                        const interpolatedValue = outputRange[i] + (ratio * (outputRange[i + 1] - outputRange[i]));
-                                        return createAnimatedValue(interpolatedValue);
-                                    }
-                                }
-                            }
-                            return createAnimatedValue(animatedValue._value);
-                        }),
-                        __getValue: () => animatedValue._value,
-                        toJSON: () => animatedValue._value,
-
-                        // Make this behave like a primitive number in all contexts
-                        valueOf: () => animatedValue._value,
-                        toString: () => String(animatedValue._value),
-
-                        // For JSON serialization (snapshots)
-                        [Symbol.toPrimitive]: (hint: string) => {
-                            if (hint === 'number') {
-                                return animatedValue._value;
-                            }
-                            return String(animatedValue._value);
-                        },
-                    };
-
-                    return animatedValue;
-                };
-
-                return createAnimatedValue(initialValue);
-            }),
         },
     }, ReactNative);
 });
 
 jest.mock('react-native-vector-icons', () => {
-    const ReactForIcon = jest.requireActual('react');
-    class CompassIcon extends ReactForIcon.PureComponent {
+    const React = jest.requireActual('react');
+    class CompassIcon extends React.PureComponent {
         render() {
-            return ReactForIcon.createElement('Icon', this.props);
+            return React.createElement('Icon', this.props);
         }
     }
     CompassIcon.getImageSource = jest.fn().mockResolvedValue({});
