@@ -3,15 +3,14 @@
 
 /* eslint-disable max-lines */
 
-import RNUtils from '@mattermost/rnutils';
 import merge from 'deepmerge';
 import {Appearance, DeviceEventEmitter, StatusBar, Platform, Alert, type EmitterSubscription} from 'react-native';
-import {type ComponentWillAppearEvent, type ImageResource, type LayoutOrientation, Navigation, type Options, OptionsModalPresentationStyle, type OptionsTopBarButton, type ScreenPoppedEvent, type EventSubscription, type ComponentDidAppearEvent} from 'react-native-navigation';
+import {type ComponentWillAppearEvent, type ImageResource, type LayoutOrientation, Navigation, type Options, OptionsModalPresentationStyle, type OptionsTopBarButton, type ScreenPoppedEvent, type EventSubscription} from 'react-native-navigation';
 import tinyColor from 'tinycolor2';
 
 import CompassIcon from '@components/compass_icon';
 import {Events, Screens, Launch} from '@constants';
-import {NOT_READY, SCREENS_WITH_EXTRA_KEYBOARD} from '@constants/screens';
+import {NOT_READY} from '@constants/screens';
 import {getDefaultThemeByAppearance} from '@context/theme';
 import EphemeralStore from '@store/ephemeral_store';
 import NavigationStore from '@store/navigation_store';
@@ -86,17 +85,17 @@ function onPoppedListener({componentId}: ScreenPoppedEvent) {
     NavigationStore.removeScreenFromStack(componentId as AvailableScreens);
 }
 
-function setAndroidSoftKeyboard(screen: AvailableScreens) {
-    if (Platform.OS !== 'android') {
-        return;
-    }
+// function setAndroidSoftKeyboard(screen: AvailableScreens) {
+//     if (Platform.OS !== 'android') {
+//         return;
+//     }
 
-    if (SCREENS_WITH_EXTRA_KEYBOARD.has(screen) || (isTablet() && screen === Screens.HOME)) {
-        RNUtils.setSoftKeyboardToAdjustNothing();
-    } else {
-        RNUtils.setSoftKeyboardToAdjustResize();
-    }
-}
+//     if (SCREENS_WITH_EXTRA_KEYBOARD.has(screen) || (isTablet() && screen === Screens.HOME)) {
+//         RNUtils.setSoftKeyboardToAdjustNothing();
+//     } else {
+//         RNUtils.setSoftKeyboardToAdjustResize();
+//     }
+// }
 
 function onScreenWillAppear(event: ComponentWillAppearEvent) {
     if (event.componentId === Screens.HOME) {
@@ -104,14 +103,14 @@ function onScreenWillAppear(event: ComponentWillAppearEvent) {
     }
 }
 
-function onScreenDidAppear(event: ComponentDidAppearEvent) {
-    setAndroidSoftKeyboard(event.componentId as AvailableScreens);
-}
+// function onScreenDidAppear(event: ComponentDidAppearEvent) {
+//     setAndroidSoftKeyboard(event.componentId as AvailableScreens);
+// }
 
-function onScreenDidDisappear() {
-    const screen = NavigationStore.getVisibleScreen();
-    setAndroidSoftKeyboard(screen);
-}
+// function onScreenDidDisappear() {
+//     const screen = NavigationStore.getVisibleScreen();
+//     setAndroidSoftKeyboard(screen);
+// }
 
 export const loginAnimationOptions = () => {
     const theme = getThemeFromState();
@@ -521,6 +520,11 @@ export function goToScreen(name: AvailableScreens, title: string, passProps = {}
 
     DeviceEventEmitter.emit(Events.TAB_BAR_VISIBLE, false);
 
+    if (NavigationStore.getScreensInStack().includes(name)) {
+        Navigation.updateProps(name, passProps);
+        return Navigation.popTo(name, merge(defaultOptions, options));
+    }
+
     return Navigation.push(componentId, {
         component: {
             id: name,
@@ -539,6 +543,15 @@ export async function popTopScreen(screenId?: AvailableScreens) {
             const componentId = NavigationStore.getVisibleScreen();
             await Navigation.pop(componentId);
         }
+    } catch (error) {
+        // RNN returns a promise rejection if there are no screens
+        // atop the root screen to pop. We'll do nothing in this case.
+    }
+}
+
+export async function popTo(screenId: AvailableScreens) {
+    try {
+        await Navigation.popTo(screenId);
     } catch (error) {
         // RNN returns a promise rejection if there are no screens
         // atop the root screen to pop. We'll do nothing in this case.

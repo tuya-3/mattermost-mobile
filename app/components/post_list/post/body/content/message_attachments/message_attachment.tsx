@@ -98,8 +98,8 @@ export default function MessageAttachment({attachment, channelId, layoutWidth, l
                     value={attachment.title}
                 />
                 }
-                {attachment.thumb_url && isValidUrl(attachment.thumb_url) &&
-                <AttachmentThumbnail uri={attachment.thumb_url}/>
+                {Boolean(attachment.thumb_url) && isValidUrl(attachment.thumb_url) &&
+                <AttachmentThumbnail uri={attachment.thumb_url!}/>
                 }
                 {Boolean(attachment.text) &&
                 <AttachmentText
@@ -120,7 +120,7 @@ export default function MessageAttachment({attachment, channelId, layoutWidth, l
                     blockStyles={blockStyles}
                     channelId={channelId}
                     location={location}
-                    fields={attachment.fields}
+                    fields={attachment.fields!}
                     metadata={metadata}
                     textStyles={textStyles}
                     theme={theme}
@@ -129,11 +129,11 @@ export default function MessageAttachment({attachment, channelId, layoutWidth, l
                 {attachment.footer &&
                 <AttachmentFooter
                     icon={attachment.footer_icon}
-                    text={attachment.footer}
+                    text={attachment.footer!}
                     theme={theme}
                 />
                 }
-                {attachment.actions && attachment.actions.length &&
+                {Boolean(attachment.actions && attachment.actions.length) &&
                 <AttachmentActions
                     actions={attachment.actions!}
                     postId={postId}
