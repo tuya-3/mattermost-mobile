@@ -143,6 +143,8 @@ const Thread = ({
                         testID='thread.post_draft'
                         containerHeight={containerHeight}
                         isChannelScreen={false}
+                        location={Screens.THREAD}
+                        enableMentionConversion={true}
                     />
                 </ExtraKeyboardProvider>
                 }

@@ -65,6 +65,7 @@ type Props = {
     growDown?: boolean;
     teamId?: string;
     containerStyle?: StyleProp<ViewStyle>;
+    enableMentionConversion?: boolean;
 }
 
 const Autocomplete = ({
@@ -85,6 +86,7 @@ const Autocomplete = ({
     growDown = false,
     containerStyle,
     teamId,
+    enableMentionConversion,
 }: Props) => {
     const theme = useTheme();
     const isTablet = useIsTablet();
@@ -157,6 +159,7 @@ const Autocomplete = ({
                     isSearch={isSearch}
                     channelId={channelId}
                     teamId={teamId}
+                    enableMentionConversion={enableMentionConversion}
                 />
                 <ChannelMention
                     cursorPosition={cursorPosition}

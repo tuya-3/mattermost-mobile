@@ -26,6 +26,7 @@ import useGMasDMNotice from './use_gm_as_dm_notice';
 
 import type PreferenceModel from '@typings/database/models/servers/preference';
 import type {AvailableScreens} from '@typings/screens/navigation';
+import {Screens} from '@constants';
 
 type ChannelProps = {
     channelId: string;
@@ -152,6 +153,8 @@ const Channel = ({
                         containerHeight={containerHeight}
                         isChannelScreen={true}
                         canShowPostPriority={true}
+                        location={Screens.CHANNEL}
+                        enableMentionConversion={true}
                     />
                 </ExtraKeyboardProvider>
                 }

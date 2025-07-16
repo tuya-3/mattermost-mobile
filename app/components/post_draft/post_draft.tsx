@@ -5,6 +5,8 @@ import React, {useEffect, useState} from 'react';
 import {Platform} from 'react-native';
 
 import Autocomplete from '@components/autocomplete';
+
+import type {AvailableScreens} from '@typings/screens/navigation';
 import {ExtraKeyboard} from '@context/extra_keyboard';
 import {useServerUrl} from '@context/server';
 import {useAutocompleteDefaultAnimatedValues} from '@hooks/autocomplete';
@@ -30,6 +32,8 @@ type Props = {
     containerHeight: number;
     isChannelScreen: boolean;
     canShowPostPriority?: boolean;
+    location: AvailableScreens;
+    enableMentionConversion?: boolean;
 }
 
 function PostDraft({
@@ -46,6 +50,8 @@ function PostDraft({
     containerHeight,
     isChannelScreen,
     canShowPostPriority,
+    location,
+    enableMentionConversion,
 }: Props) {
     const [value, setValue] = useState(message);
     const [cursorPosition, setCursorPosition] = useState(message.length);
@@ -100,6 +106,7 @@ function PostDraft({
             updateValue={setValue}
             value={value}
             setIsFocused={setIsFocused}
+            enableMentionConversion={enableMentionConversion}
         />
     );
 
@@ -116,6 +123,7 @@ function PostDraft({
             inPost={true}
             availableSpace={animatedAutocompleteAvailableSpace}
             serverUrl={serverUrl}
+            enableMentionConversion={enableMentionConversion}
         />
     ) : null;
 
