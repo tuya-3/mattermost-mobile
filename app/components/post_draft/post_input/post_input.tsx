@@ -215,7 +215,7 @@ export default function PostInput({
         if (enableMentionConversion && containsMentions(newValue)) {
             const handleMentionConversion = async () => {
                 try {
-                    const convertedText = await debounceConvertUsernamesToFullnames(newValue, serverUrl, currentUserId);
+                    const convertedText = await debounceConvertUsernamesToFullnames(newValue, serverUrl);
                     if (convertedText !== newValue) {
                         updateValue((current) => {
                             if (current === newValue) {
