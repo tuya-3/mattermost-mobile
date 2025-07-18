@@ -115,10 +115,55 @@ export async function convertUsernamesToFullnames(
         // 結果を適用
         results.forEach((result) => {
             if (result) {
-                // より確実な正規表現を使用（日本語文字にも対応）
-                const escapedUsername = result.username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(`@${escapedUsername}(?=\\s|$|[^a-z0-9.\-_])`, 'gi');
-                convertedText = convertedText.replace(regex, `@${result.fullName} `);
+                // より確実なアプローチ: 文字列を直接検索して置換
+                const searchPattern = `@${result.username}`;
+                let searchIndex = 0;
+
+                while (true) {
+                    const index = convertedText.indexOf(searchPattern, searchIndex);
+                    if (index === -1) {
+                        break; // パターンが見つからない
+                    }
+
+                    // メンションの後の文字をチェック
+                    const afterIndex = index + searchPattern.length;
+                    const charAfter = afterIndex < convertedText.length ? convertedText[afterIndex] : '';
+
+                    // メンションの前の文字をチェック（@マークの前）
+                    const beforeChar = index > 0 ? convertedText[index - 1] : '';
+
+                    // 有効なメンションかチェック（前の文字が英数字でない）
+                    const isValidMention = index === 0 || !/[a-z0-9.\-_]/i.test(beforeChar);
+
+                    if (isValidMention) {
+                        // 置換文字列を作成
+                        let replacement = `@${result.fullName}`;
+
+                        // 後続文字に基づいてスペースを追加（句読点の前にはスペースを追加しない）
+                        const needsSpace = charAfter &&
+                                         charAfter !== ' ' &&
+                                         charAfter !== '\n' &&
+                                         charAfter !== '\t' &&
+                                         charAfter !== '\r' &&
+                                         !/[.,!?;:(){}[\]"'`\-]/.test(charAfter);
+
+                        if (needsSpace) {
+                            replacement += ' ';
+                        }
+
+                        // 文字列を置換
+                        const before = convertedText.substring(0, index);
+                        const after = convertedText.substring(afterIndex);
+                        const newText = before + replacement + after;
+
+                        convertedText = newText;
+
+                        // 次の検索位置を更新
+                        searchIndex = index + replacement.length;
+                    } else {
+                        searchIndex = index + 1;
+                    }
+                }
             }
         });
 
