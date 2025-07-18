@@ -13,13 +13,17 @@ const {USER} = MM_TABLES.SERVER;
 
 // メンションの正規表現パターン
 const MENTION_REGEX = /@([a-z0-9.\-_\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+)/gi;
-const FULLNAME_MENTION_REGEX = /@([^@\n]+?)(?=\s*@|$)/gi;
+const FULLNAME_MENTION_REGEX = /@([^@\n]+?)(?=\s|[.,!?;:(){}[\]"'`]|@|$)/gi;
 
 /**
  * テキストにメンションが含まれているかチェック
  */
 export function containsMentions(text: string): boolean {
-    return MENTION_REGEX.test(text) || FULLNAME_MENTION_REGEX.test(text);
+    // 正規表現を新しく作成（グローバルフラグのリセットのため）
+    const mentionRegex = /@([a-z0-9.\-_\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+)/gi;
+    const fullnameRegex = /@([^@\n]+?)(?=\s|[.,!?;:(){}[\]"'`]|@|$)/gi;
+
+    return mentionRegex.test(text) || fullnameRegex.test(text);
 }
 
 /**
