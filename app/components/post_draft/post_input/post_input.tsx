@@ -227,13 +227,19 @@ export default function PostInput({
                     try {
                         const convertedText = await debounceConvertUsernamesToFullnames(newValue, serverUrl, undefined, 150);
                         if (convertedText !== newValue) {
-                            updateValue((current) => {
-                                // より厳密な競合チェック
-                                if (current === newValue || current.endsWith(newValue.trim())) {
-                                    return convertedText;
-                                }
-                                return current;
-                            });
+                                                    updateValue((current) => {
+                            // 競合チェック: テキストが変更されていないか、末尾に追加されただけかを確認
+                            if (current === newValue) {
+                                // テキストが変更されていない場合は安全に変換
+                                return convertedText;
+                            } else if (current.startsWith(newValue)) {
+                                // ユーザーが変換トリガー後に追加のテキストを入力した場合
+                                const additionalText = current.substring(newValue.length);
+                                return convertedText + additionalText;
+                            }
+                            // その他の変更がある場合は変換を適用しない（データ損失を防ぐ）
+                            return current;
+                        });
                         }
                     } catch (error) {
                         // Handle mention conversion error silently
