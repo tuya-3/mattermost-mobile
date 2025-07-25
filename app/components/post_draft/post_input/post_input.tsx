@@ -221,7 +221,7 @@ export default function PostInput({
             // スペースまたは改行で区切られた完全なメンションのみ変換
             const lastChar = newValue[newValue.length - 1];
             const shouldConvert = lastChar === ' ' || lastChar === '\n' || lastChar === '\t';
-            
+
             if (shouldConvert) {
                 const handleMentionConversion = async () => {
                     try {
