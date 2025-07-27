@@ -9,8 +9,8 @@ import DraftInput from '@components/post_draft/draft_input/';
 import {PostPriorityType} from '@constants/post';
 import {useServerUrl} from '@context/server';
 import {useHandleSendMessage} from '@hooks/handle_send_message';
-import {containsMentions, convertFullnamesToUsernames} from '@utils/mention_conversion';
 import {logWarning} from '@utils/log';
+import {containsMentions, convertFullnamesToUsernames} from '@utils/mention_conversion';
 
 import type {DraftType} from '@constants/draft';
 import type CustomEmojiModel from '@typings/database/models/servers/custom_emoji';
