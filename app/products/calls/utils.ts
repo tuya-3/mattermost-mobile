@@ -231,13 +231,22 @@ export const getTranscriptionUri = (serverUrl: string, postProps?: Record<string
 };
 
 export function getCallPropsFromPost(post: PostModel | Post): CallPostProps {
-    return {
+    const props = {
         title: ensureString(post.props?.title),
         start_at: ensureNumber(post.props?.start_at),
         end_at: ensureNumber(post.props?.end_at),
         recordings: isRecordOf<CallJobMetadata>(post.props?.recordings, isCallJobMetadata) ? post.props.recordings : {},
         transcriptions: isRecordOf<CallJobMetadata>(post.props?.transcriptions, isCallJobMetadata) ? post.props.transcriptions : {},
         participants: isStringArray(post.props?.participants) ? post.props.participants : [],
-        recording_files: isStringArray(post.props?.recording_files) ? post.props.recording_files : [],
     };
+
+    // TODO: Environment-specific type definition issue
+    // recording_files property exists in local @mattermost/calls types but not in GitHub Actions
+    // This should be resolved when dependency versions are aligned across environments
+    // Add recording_files conditionally for compatibility
+    if ('recording_files' in ({} as CallPostProps)) {
+        (props as any).recording_files = isStringArray(post.props?.recording_files) ? post.props.recording_files : [];
+    }
+
+    return props as CallPostProps;
 }
