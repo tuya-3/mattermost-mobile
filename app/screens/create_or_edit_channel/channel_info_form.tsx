@@ -396,6 +396,7 @@ export default function ChannelInfoForm({
             <Autocomplete
                 position={animatedAutocompletePosition}
                 updateValue={onHeaderAutocompleteChange}
+                updateCursorPosition={() => undefined} // Not used in this component
                 cursorPosition={header.length}
                 value={header}
                 nestedScrollEnabled={true}

@@ -59,11 +59,13 @@ type Props = {
     isAppsEnabled: boolean;
     nestedScrollEnabled?: boolean;
     updateValue: (v: string) => void;
+    updateCursorPosition: React.Dispatch<React.SetStateAction<number>>;
     shouldDirectlyReact?: boolean;
     availableSpace: SharedValue<number>;
     growDown?: boolean;
     teamId?: string;
     containerStyle?: StyleProp<ViewStyle>;
+    enableMentionConversion?: boolean;
 }
 
 const Autocomplete = ({
@@ -79,10 +81,12 @@ const Autocomplete = ({
     isAppsEnabled,
     nestedScrollEnabled = false,
     updateValue,
+    updateCursorPosition,
     shouldDirectlyReact = false,
     growDown = false,
     containerStyle,
     teamId,
+    enableMentionConversion,
 }: Props) => {
     const theme = useTheme();
     const isTablet = useIsTablet();
@@ -149,12 +153,14 @@ const Autocomplete = ({
                     cursorPosition={cursorPosition}
                     listStyle={style.listStyle}
                     updateValue={updateValue}
+                    updateCursorPosition={updateCursorPosition}
                     onShowingChange={setShowingAtMention}
                     value={value || ''}
                     nestedScrollEnabled={nestedScrollEnabled}
                     isSearch={isSearch}
                     channelId={channelId}
                     teamId={teamId}
+                    enableMentionConversion={enableMentionConversion}
                 />
                 <ChannelMention
                     cursorPosition={cursorPosition}

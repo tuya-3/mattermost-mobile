@@ -4,6 +4,7 @@
 import React, {useCallback} from 'react';
 
 import UserItem from '@components/user_item';
+import {getFullName} from '@utils/user';
 
 import type UserModel from '@typings/database/models/servers/user';
 
@@ -11,16 +12,25 @@ type AtMentionItemProps = {
     user: UserProfile | UserModel;
     onPress?: (username: string) => void;
     testID?: string;
+    enableMentionConversion?: boolean;
 }
 
 const AtMentionItem = ({
     user,
     onPress,
     testID,
+    enableMentionConversion,
 }: AtMentionItemProps) => {
     const completeMention = useCallback((u: UserModel | UserProfile) => {
-        onPress?.(u.username);
-    }, []);
+        let mention = u.username;
+        if (enableMentionConversion) {
+            const fullName = getFullName(u);
+            if (fullName && fullName !== u.username) {
+                mention = fullName;
+            }
+        }
+        onPress?.(mention);
+    }, [onPress, enableMentionConversion]);
 
     return (
         <UserItem

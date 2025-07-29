@@ -26,6 +26,7 @@ type Props = {
     cursorPosition: number;
     isSearch: boolean;
     updateValue: (v: string) => void;
+    updateCursorPosition: React.Dispatch<React.SetStateAction<number>>;
     onShowingChange: (c: boolean) => void;
     value: string;
     nestedScrollEnabled: boolean;
@@ -34,6 +35,7 @@ type Props = {
     isChannelConstrained: boolean;
     isTeamConstrained: boolean;
     listStyle: StyleProp<ViewStyle>;
+    enableMentionConversion?: boolean;
 }
 
 const AtMention = ({
@@ -42,6 +44,7 @@ const AtMention = ({
     cursorPosition,
     isSearch,
     updateValue,
+    updateCursorPosition,
     onShowingChange,
     value,
     nestedScrollEnabled,
@@ -50,6 +53,7 @@ const AtMention = ({
     isChannelConstrained,
     isTeamConstrained,
     listStyle,
+    enableMentionConversion,
 }: Props) => {
     const serverUrl = useServerUrl();
 
@@ -139,6 +143,7 @@ const AtMention = ({
 
         updateValue(completedDraft);
         setLocalCursorPosition(newCursorPosition);
+        updateCursorPosition(newCursorPosition);
 
         onShowingChange(false);
         setNoResultsTerm(mention);
@@ -177,9 +182,10 @@ const AtMention = ({
                 user={item}
                 onPress={completeMention}
                 testID='autocomplete.at_mention_item'
+                enableMentionConversion={enableMentionConversion}
             />
         );
-    }, [completeMention]);
+    }, [completeMention, enableMentionConversion]);
 
     const renderItem = useCallback(({item, section}: SectionListRenderItemInfo<SpecialMention | GroupModel | UserProfile>) => {
         switch (section.key) {

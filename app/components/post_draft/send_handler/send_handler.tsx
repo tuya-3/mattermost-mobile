@@ -9,6 +9,8 @@ import DraftInput from '@components/post_draft/draft_input/';
 import {PostPriorityType} from '@constants/post';
 import {useServerUrl} from '@context/server';
 import {useHandleSendMessage} from '@hooks/handle_send_message';
+import {logWarning} from '@utils/log';
+import {containsMentions, convertFullnamesToUsernames} from '@utils/mention_conversion';
 
 import type {DraftType} from '@constants/draft';
 import type CustomEmojiModel from '@typings/database/models/servers/custom_emoji';
@@ -52,6 +54,7 @@ type Props = {
     channelDisplayName?: string;
     isFromDraftView?: boolean;
     draftReceiverUserName?: string;
+    enableMentionConversion?: boolean;
 }
 
 export const INITIAL_PRIORITY = {
@@ -93,6 +96,7 @@ export default function SendHandler({
     isFromDraftView,
     draftType,
     postId,
+    enableMentionConversion,
 }: Props) {
     const serverUrl = useServerUrl();
 
@@ -100,7 +104,7 @@ export default function SendHandler({
         updateDraftPriority(serverUrl, channelId, rootId, priority);
     }, [serverUrl, channelId, rootId]);
 
-    const {handleSendMessage, canSend} = useHandleSendMessage({
+    const {handleSendMessage: originalHandleSendMessage, canSend} = useHandleSendMessage({
         value,
         channelId,
         rootId,
@@ -116,6 +120,23 @@ export default function SendHandler({
         postPriority,
         clearDraft,
     });
+
+    // Send handler with mention conversion feature
+    const handleSendMessage = useCallback(async (schedulingInfo?: SchedulingInfo) => {
+        let messageToSend = value;
+
+        if (enableMentionConversion && containsMentions(value)) {
+            try {
+                messageToSend = await convertFullnamesToUsernames(value, serverUrl);
+            } catch (error) {
+                // Use original message on mention conversion error
+                logWarning('Failed to convert mentions for sending:', error);
+            }
+        }
+
+        // Use the modified useHandleSendMessage hook to pass the converted message directly
+        return originalHandleSendMessage(schedulingInfo, messageToSend);
+    }, [enableMentionConversion, value, serverUrl, originalHandleSendMessage]);
 
     if (isFromDraftView) {
         return (
@@ -170,6 +191,7 @@ export default function SendHandler({
             persistentNotificationInterval={persistentNotificationInterval}
             persistentNotificationMaxRecipients={persistentNotificationMaxRecipients}
             setIsFocused={setIsFocused}
+            enableMentionConversion={enableMentionConversion}
         />
     );
 }

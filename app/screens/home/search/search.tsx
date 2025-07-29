@@ -481,6 +481,7 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
             {searchIsFocused &&
             <Autocomplete
                 updateValue={handleTextChange}
+                updateCursorPosition={setCursorPosition}
                 cursorPosition={cursorPosition}
                 value={searchValue}
                 isSearch={true}

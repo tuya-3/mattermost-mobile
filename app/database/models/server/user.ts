@@ -194,6 +194,15 @@ export default class UserModel extends Model implements UserModelInterface {
             keys.push({key: usernameKey});
         }
 
+        // Add full name mention key (for mention conversion feature)
+        const fullName = [this.firstName, this.lastName].filter(Boolean).join(' ').trim();
+        if (fullName) {
+            const fullNameKey = `@${fullName}`;
+            if (keys.findIndex((key) => key.key === fullNameKey) === -1) {
+                keys.push({key: fullNameKey, caseSensitive: true});
+            }
+        }
+
         return keys;
     }
 

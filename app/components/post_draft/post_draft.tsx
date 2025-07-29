@@ -33,6 +33,7 @@ type Props = {
     isChannelScreen: boolean;
     canShowPostPriority?: boolean;
     location: AvailableScreens;
+    enableMentionConversion?: boolean;
 }
 
 function PostDraft({
@@ -50,6 +51,7 @@ function PostDraft({
     isChannelScreen,
     canShowPostPriority,
     location,
+    enableMentionConversion,
 }: Props) {
     const [value, setValue] = useState(message);
     const [cursorPosition, setCursorPosition] = useState(message.length);
@@ -105,6 +107,7 @@ function PostDraft({
             updateValue={setValue}
             value={value}
             setIsFocused={setIsFocused}
+            enableMentionConversion={enableMentionConversion}
         />
     );
 
@@ -112,6 +115,7 @@ function PostDraft({
         <Autocomplete
             position={animatedAutocompletePosition}
             updateValue={setValue}
+            updateCursorPosition={setCursorPosition}
             rootId={rootId}
             channelId={channelId}
             cursorPosition={cursorPosition}
@@ -120,6 +124,7 @@ function PostDraft({
             shouldDirectlyReact={!Boolean(files?.length)}
             availableSpace={animatedAutocompleteAvailableSpace}
             serverUrl={serverUrl}
+            enableMentionConversion={enableMentionConversion}
         />
     ) : null;
 

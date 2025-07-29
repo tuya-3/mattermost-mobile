@@ -122,3 +122,30 @@ libraries/**/**/.build
 # Android sounds
 android/app/src/main/res/raw/*
 .aider*
+
+# Ruby/Gem files
+bin/
+cache/
+gems/
+specifications/
+
+# Extensions
+extensions/
+
+# Build artifacts
+mobile-artifacts/
+
+# Test temporary files
+detox/cookies.txt
+detox/delete_channel_ids.txt
+detox/session_cookies.txt
+delete_team_ids.txt
+detox/test_simple.js
+
+# iOS build artifacts and generated files
+ios/Mattermost/Images.xcassets/**/*.png
+ios/Mattermost/i18n/**/*.strings
+ios/Mattermost/Info.plist
+ios/Mattermost/Mattermost.entitlements
+ios/MattermostShare/Info.plist
+ios/MattermostShare/MattermostShare.entitlements

@@ -23,6 +23,8 @@ import {t} from '@i18n';
 import NavigationStore from '@store/navigation_store';
 import {handleDraftUpdate} from '@utils/draft';
 import {extractFileInfo} from '@utils/file';
+import {logWarning} from '@utils/log';
+import {containsMentions, debounceConvertUsernamesToFullnames} from '@utils/mention_conversion';
 import {changeOpacity, makeStyleSheetFromTheme, getKeyboardAppearanceFromTheme} from '@utils/theme';
 
 import type {AvailableScreens} from '@typings/screens/navigation';
@@ -45,6 +47,8 @@ type Props = {
     sendMessage: () => void;
     inputRef: React.MutableRefObject<PasteInputRef | undefined>;
     setIsFocused: (isFocused: boolean) => void;
+    enableMentionConversion?: boolean;
+    currentUserId?: string;
 }
 
 const showPasteFilesErrorDialog = (intl: IntlShape) => {
@@ -116,6 +120,8 @@ export default function PostInput({
     sendMessage,
     inputRef,
     setIsFocused,
+    enableMentionConversion,
+    currentUserId,
 }: Props) {
     const intl = useIntl();
     const isTablet = useIsTablet();
@@ -199,10 +205,48 @@ export default function PostInput({
         if (!shouldProcessEvent(newValue)) {
             return;
         }
+
+        // Update UI immediately for responsiveness
         updateValue(newValue);
         lastNativeValue.current = newValue;
 
         checkMessageLength(newValue);
+
+        // Mention conversion feature - executes after the user finishes typing
+        if (enableMentionConversion && containsMentions(newValue)) {
+            // Convert only complete mentions separated by a space or newline
+            const lastChar = newValue[newValue.length - 1];
+            const shouldConvert = lastChar === ' ' || lastChar === '\n' || lastChar === '\t';
+
+            if (shouldConvert) {
+                const handleMentionConversion = async () => {
+                    try {
+                        const convertedText = await debounceConvertUsernamesToFullnames(newValue, serverUrl, 300);
+                        if (convertedText !== newValue) {
+                            updateValue((current) => {
+                            // Conflict check: confirm that the text has not been changed, or has only been appended to.
+                                if (current === newValue) {
+                                // If the text has not changed, it's safe to convert.
+                                    return convertedText;
+                                } else if (current.startsWith(newValue)) {
+                                // If the user typed additional text after the conversion was triggered, append it.
+                                    const additionalText = current.substring(newValue.length);
+                                    return convertedText + additionalText;
+                                }
+
+                                // Do not apply conversion if there are other changes (to prevent data loss).
+                                return current;
+                            });
+                        }
+                    } catch (error) {
+                        // Handle mention conversion error silently
+                        logWarning('Failed to convert mention on text change:', error);
+                    }
+                };
+
+                handleMentionConversion();
+            }
+        }
 
         if (
             newValue &&
@@ -220,6 +264,9 @@ export default function PostInput({
         channelId,
         rootId,
         (membersInChannel < maxNotificationsPerChannel) && enableUserTypingMessage,
+        enableMentionConversion,
+        serverUrl,
+        currentUserId,
     ]);
 
     const onPaste = useCallback(async (error: string | null | undefined, files: PastedFile[]) => {
