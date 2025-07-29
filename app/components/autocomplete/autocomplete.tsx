@@ -59,6 +59,7 @@ type Props = {
     isAppsEnabled: boolean;
     nestedScrollEnabled?: boolean;
     updateValue: (v: string) => void;
+    updateCursorPosition: React.Dispatch<React.SetStateAction<number>>;
     shouldDirectlyReact?: boolean;
     availableSpace: SharedValue<number>;
     growDown?: boolean;
@@ -80,6 +81,7 @@ const Autocomplete = ({
     isAppsEnabled,
     nestedScrollEnabled = false,
     updateValue,
+    updateCursorPosition,
     shouldDirectlyReact = false,
     growDown = false,
     containerStyle,
@@ -151,6 +153,7 @@ const Autocomplete = ({
                     cursorPosition={cursorPosition}
                     listStyle={style.listStyle}
                     updateValue={updateValue}
+                    updateCursorPosition={updateCursorPosition}
                     onShowingChange={setShowingAtMention}
                     value={value || ''}
                     nestedScrollEnabled={nestedScrollEnabled}

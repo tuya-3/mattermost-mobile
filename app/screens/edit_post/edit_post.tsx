@@ -482,6 +482,7 @@ const EditPost = ({
                 nestedScrollEnabled={true}
                 rootId={post.rootId}
                 updateValue={onAutocompleteChangeText}
+                updateCursorPosition={setCursorPosition}
                 value={postMessage}
                 cursorPosition={cursorPosition}
                 position={animatedAutocompletePosition}

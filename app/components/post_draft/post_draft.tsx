@@ -115,6 +115,7 @@ function PostDraft({
         <Autocomplete
             position={animatedAutocompletePosition}
             updateValue={setValue}
+            updateCursorPosition={setCursorPosition}
             rootId={rootId}
             channelId={channelId}
             cursorPosition={cursorPosition}

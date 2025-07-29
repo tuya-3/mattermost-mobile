@@ -26,6 +26,7 @@ type Props = {
     cursorPosition: number;
     isSearch: boolean;
     updateValue: (v: string) => void;
+    updateCursorPosition: React.Dispatch<React.SetStateAction<number>>;
     onShowingChange: (c: boolean) => void;
     value: string;
     nestedScrollEnabled: boolean;
@@ -43,6 +44,7 @@ const AtMention = ({
     cursorPosition,
     isSearch,
     updateValue,
+    updateCursorPosition,
     onShowingChange,
     value,
     nestedScrollEnabled,
@@ -141,6 +143,7 @@ const AtMention = ({
 
         updateValue(completedDraft);
         setLocalCursorPosition(newCursorPosition);
+        updateCursorPosition(newCursorPosition);
 
         onShowingChange(false);
         setNoResultsTerm(mention);
