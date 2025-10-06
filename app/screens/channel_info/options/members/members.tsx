@@ -17,20 +17,21 @@ type Props = {
     channelId: string;
     displayName: string;
     count: number;
-    channel?: Channel;
+    creatorId?: string;
 }
 
-const Members = ({displayName, channelId, count, channel}: Props) => {
+const Members = ({displayName, channelId, count, creatorId}: Props) => {
     const {formatMessage} = useIntl();
     const theme = useTheme();
     const [isOfficial, setIsOfficial] = useState(false);
     const title = formatMessage({id: 'channel_info.members', defaultMessage: 'Members'});
 
     useEffect(() => {
-        if (channel) {
-            isOfficialTunagChannel(channel).then(setIsOfficial);
+        if (creatorId) {
+            // Create minimal channel object for isOfficialTunagChannel
+            isOfficialTunagChannel({creator_id: creatorId} as Channel).then(setIsOfficial);
         }
-    }, [channel]);
+    }, [creatorId]);
 
     const goToChannelMembers = usePreventDoubleTap(useCallback(() => {
         const options = {

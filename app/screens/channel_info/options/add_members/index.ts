@@ -23,7 +23,7 @@ const enhanced = withObservables(['channelId'], ({channelId, database}: Props) =
 
     return {
         displayName,
-        channel: channel.pipe(switchMap((c) => of$(c ? c.toApi() : undefined))),
+        creatorId: channel.pipe(switchMap((c) => of$(c?.creatorId))),
     };
 });
 

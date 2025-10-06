@@ -16,20 +16,20 @@ import {isOfficialTunagChannel} from '@utils/official_channel_utils';
 type Props = {
     channelId: string;
     displayName: string;
-    channel?: Channel;
+    creatorId?: string;
 }
 
-const AddMembers = ({displayName, channelId, channel}: Props) => {
+const AddMembers = ({displayName, channelId, creatorId}: Props) => {
     const {formatMessage} = useIntl();
     const theme = useTheme();
     const [isOfficial, setIsOfficial] = useState(false);
     const title = formatMessage({id: 'channel_info.add_members', defaultMessage: 'Add members'});
 
     useEffect(() => {
-        if (channel) {
-            isOfficialTunagChannel(channel).then(setIsOfficial);
+        if (creatorId) {
+            isOfficialTunagChannel({creator_id: creatorId} as Channel).then(setIsOfficial);
         }
-    }, [channel]);
+    }, [creatorId]);
 
     const goToAddMembers = usePreventDoubleTap(useCallback(async () => {
         const options = await getHeaderOptions(theme, displayName, true);
