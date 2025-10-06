@@ -3,7 +3,7 @@
 
 import {Database, Q} from '@nozbe/watermelondb';
 import {of as of$, combineLatest, from} from 'rxjs';
-import {switchMap, distinctUntilChanged} from 'rxjs/operators';
+import {switchMap, distinctUntilChanged, catchError} from 'rxjs/operators';
 
 import {Database as DatabaseConstants, General, Permissions} from '@constants';
 import {isDefaultChannel, isDMorGM} from '@utils/channel';
@@ -104,6 +104,12 @@ export function observeCanManageChannelMembers(database: Database, channelId: st
                         return of$(false);
                     }
 
+                    const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
+                    return observePermissionForChannel(database, c, user, permission, true);
+                }),
+
+                // Handle errors gracefully - fall back to normal permission check
+                catchError(() => {
                     const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
                     return observePermissionForChannel(database, c, user, permission, true);
                 }),
