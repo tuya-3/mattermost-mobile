@@ -2,11 +2,12 @@
 // See LICENSE.txt for license information.
 
 import {Database, Q} from '@nozbe/watermelondb';
-import {of as of$, combineLatest} from 'rxjs';
+import {of as of$, combineLatest, from} from 'rxjs';
 import {switchMap, distinctUntilChanged} from 'rxjs/operators';
 
 import {Database as DatabaseConstants, General, Permissions} from '@constants';
 import {isDefaultChannel, isDMorGM} from '@utils/channel';
+import {isOfficialTunagChannel} from '@utils/official_channel_utils';
 import {hasPermission} from '@utils/role';
 
 import {observeChannel, observeMyChannelRoles} from './channel';
@@ -95,8 +96,18 @@ export function observeCanManageChannelMembers(database: Database, channelId: st
                 return of$(false);
             }
 
-            const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
-            return observePermissionForChannel(database, c, user, permission, true);
+            // Check if this is an official TUNAG channel
+            const channelObj = c.toApi();
+            return from(isOfficialTunagChannel(channelObj)).pipe(
+                switchMap((isOfficial) => {
+                    if (isOfficial) {
+                        return of$(false);
+                    }
+
+                    const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
+                    return observePermissionForChannel(database, c, user, permission, true);
+                }),
+            );
         }),
         distinctUntilChanged(),
     );

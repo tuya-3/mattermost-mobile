@@ -30,6 +30,7 @@ type Props = {
     canAddBookmarks: boolean;
     canEnableDisableCalls: boolean;
     canManageSettings: boolean;
+    channel?: Channel;
     channelId: string;
     closeButtonId: string;
     componentId: AvailableScreens;
@@ -66,6 +67,7 @@ const ChannelInfo = ({
     canEnableDisableCalls,
     canManageMembers,
     canManageSettings,
+    channel,
     channelId,
     closeButtonId,
     componentId,
@@ -142,6 +144,7 @@ const ChannelInfo = ({
                         isCRTEnabled={isCRTEnabled}
                         canManageSettings={canManageSettings}
                         isPlaybooksEnabled={isPlaybooksEnabled}
+                        channel={channel}
                     />
                     <View style={styles.separator}/>
                     {convertGMOptionAvailable &&
@@ -168,6 +171,7 @@ const ChannelInfo = ({
                         channelId={channelId}
                         componentId={componentId}
                         type={type}
+                        channel={channel}
                     />
                 </ScrollView>
             </SafeAreaView>

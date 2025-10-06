@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useIntl} from 'react-intl';
 import {Platform} from 'react-native';
 
@@ -10,18 +10,28 @@ import {Screens} from '@constants';
 import {useTheme} from '@context/theme';
 import {usePreventDoubleTap} from '@hooks/utils';
 import {goToScreen} from '@screens/navigation';
+import {isOfficialTunagChannel} from '@utils/official_channel_utils';
 import {changeOpacity} from '@utils/theme';
 
 type Props = {
     channelId: string;
     displayName: string;
     count: number;
+    channel?: Channel;
 }
 
-const Members = ({displayName, channelId, count}: Props) => {
+const Members = ({displayName, channelId, count, channel}: Props) => {
     const {formatMessage} = useIntl();
     const theme = useTheme();
+    const [isOfficial, setIsOfficial] = useState(false);
     const title = formatMessage({id: 'channel_info.members', defaultMessage: 'Members'});
+
+    useEffect(() => {
+        if (channel) {
+            isOfficialTunagChannel(channel).then(setIsOfficial);
+        }
+    }, [channel]);
+
     const goToChannelMembers = usePreventDoubleTap(useCallback(() => {
         const options = {
             topBar: {
@@ -34,6 +44,10 @@ const Members = ({displayName, channelId, count}: Props) => {
 
         goToScreen(Screens.MANAGE_CHANNEL_MEMBERS, title, {channelId}, options);
     }, [channelId, displayName, theme.sidebarHeaderTextColor, title]));
+
+    if (isOfficial) {
+        return null;
+    }
 
     return (
         <OptionItem

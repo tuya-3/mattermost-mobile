@@ -16,12 +16,14 @@ type Props = WithDatabaseArgs & {
 }
 
 const enhanced = withObservables(['channelId'], ({channelId, database}: Props) => {
-    const displayName = observeChannel(database, channelId).pipe(
+    const channel = observeChannel(database, channelId);
+    const displayName = channel.pipe(
         switchMap((c) => of$(c?.displayName)),
     );
 
     return {
         displayName,
+        channel: channel.pipe(switchMap((c) => of$(c ? c.toApi() : undefined))),
     };
 });
 

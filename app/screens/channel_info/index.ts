@@ -150,6 +150,7 @@ const enhanced = withObservables([], ({serverUrl, database}: Props) => {
     const isPlaybooksEnabled = observeIsPlaybooksEnabled(database);
 
     return {
+        channel: channel.pipe(switchMap((c) => of$(c ? c.toApi() : undefined))),
         type,
         canEnableDisableCalls,
         isCallsEnabledInChannel,

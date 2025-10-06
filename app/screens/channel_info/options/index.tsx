@@ -25,6 +25,7 @@ type Props = {
     isCRTEnabled: boolean;
     isPlaybooksEnabled: boolean;
     canManageSettings: boolean;
+    channel?: Channel;
 }
 
 const Options = ({
@@ -35,6 +36,7 @@ const Options = ({
     isCRTEnabled,
     isPlaybooksEnabled,
     canManageSettings,
+    channel,
 }: Props) => {
     const isDMorGM = isTypeDMorGM(type);
 
@@ -70,7 +72,10 @@ const Options = ({
                 />
             }
             {canManageSettings &&
-                <EditChannel channelId={channelId}/>
+                <EditChannel
+                    channelId={channelId}
+                    channel={channel}
+                />
             }
         </>
     );
