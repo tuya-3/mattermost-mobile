@@ -96,23 +96,21 @@ export function observeCanManageChannelMembers(database: Database, channelId: st
                 return of$(false);
             }
 
-            // Check if this is an official TUNAG channel
+            const checkNormalPermissions = () => {
+                const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
+                return observePermissionForChannel(database, c, user, permission, true);
+            };
+
             const channelObj = c.toApi();
             return from(isOfficialTunagChannel(channelObj)).pipe(
                 switchMap((isOfficial) => {
                     if (isOfficial) {
                         return of$(false);
                     }
-
-                    const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
-                    return observePermissionForChannel(database, c, user, permission, true);
+                    return checkNormalPermissions();
                 }),
 
-                // Handle errors gracefully - fall back to normal permission check
-                catchError(() => {
-                    const permission = c.type === General.OPEN_CHANNEL ? Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS : Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS;
-                    return observePermissionForChannel(database, c, user, permission, true);
-                }),
+                catchError(() => checkNormalPermissions()),
             );
         }),
         distinctUntilChanged(),
