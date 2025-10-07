@@ -2,8 +2,8 @@
 // See LICENSE.txt for license information.
 
 import {withDatabase, withObservables} from '@nozbe/watermelondb/react';
-import {combineLatest, of as of$} from 'rxjs';
-import {distinctUntilChanged, switchMap, combineLatestWith} from 'rxjs/operators';
+import {combineLatest, of as of$, from} from 'rxjs';
+import {distinctUntilChanged, switchMap, combineLatestWith, catchError} from 'rxjs/operators';
 
 import {observeIsCallsEnabledInChannel} from '@calls/observers';
 import {observeCallsConfig} from '@calls/state';
@@ -23,6 +23,7 @@ import {observeIsCRTEnabled} from '@queries/servers/thread';
 import {observeCurrentUser, observeUserIsChannelAdmin, observeUserIsTeamAdmin} from '@queries/servers/user';
 import {isTypeDMorGM} from '@utils/channel';
 import {isMinimumServerVersion} from '@utils/helpers';
+import {isOfficialTunagChannel} from '@utils/official_channel_utils';
 import {isSystemAdmin} from '@utils/user';
 
 import ChannelInfo from './channel_info';
@@ -149,6 +150,12 @@ const enhanced = withObservables([], ({serverUrl, database}: Props) => {
 
     const isPlaybooksEnabled = observeIsPlaybooksEnabled(database);
 
+    const isOfficial = channel.pipe(
+        switchMap((c) => (c ? from(isOfficialTunagChannel(c.toApi())) : of$(false))),
+        catchError(() => of$(false)),
+        distinctUntilChanged(),
+    );
+
     return {
         channel: channel.pipe(switchMap((c) => of$(c ? c.toApi() : undefined))),
         type,
@@ -163,6 +170,7 @@ const enhanced = withObservables([], ({serverUrl, database}: Props) => {
         isGuestUser,
         isConvertGMFeatureAvailable,
         isPlaybooksEnabled,
+        isOfficial,
     };
 });
 

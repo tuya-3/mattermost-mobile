@@ -30,6 +30,7 @@ describe('ChannelInfoOptions', () => {
             isCRTEnabled: false,
             canManageSettings: false,
             isPlaybooksEnabled: true,
+            isOfficial: false,
         };
     }
     beforeEach(async () => {

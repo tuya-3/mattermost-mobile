@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback} from 'react';
 import {useIntl} from 'react-intl';
 import {Platform} from 'react-native';
 
@@ -9,23 +9,16 @@ import OptionItem from '@components/option_item';
 import {Screens} from '@constants';
 import {usePreventDoubleTap} from '@hooks/utils';
 import {goToScreen} from '@screens/navigation';
-import {isOfficialTunagChannel} from '@utils/official_channel_utils';
 
 type Props = {
     channelId: string;
     channel?: Channel;
+    isOfficial?: boolean;
 }
 
-const EditChannel = ({channelId, channel}: Props) => {
+const EditChannel = ({channelId, isOfficial = false}: Props) => {
     const {formatMessage} = useIntl();
-    const [isOfficial, setIsOfficial] = useState(false);
     const title = formatMessage({id: 'screens.channel_edit', defaultMessage: 'Edit Channel'});
-
-    useEffect(() => {
-        if (channel) {
-            isOfficialTunagChannel(channel).then(setIsOfficial);
-        }
-    }, [channel]);
 
     const goToEditChannel = usePreventDoubleTap(useCallback(async () => {
         goToScreen(Screens.CREATE_OR_EDIT_CHANNEL, title, {channelId});

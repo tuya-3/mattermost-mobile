@@ -42,6 +42,7 @@ type Props = {
     isConvertGMFeatureAvailable: boolean;
     isCRTEnabled: boolean;
     isGuestUser: boolean;
+    isOfficial: boolean;
     type?: ChannelType;
 }
 
@@ -78,6 +79,7 @@ const ChannelInfo = ({
     isConvertGMFeatureAvailable,
     isCRTEnabled,
     isGuestUser,
+    isOfficial,
     type,
 }: Props) => {
     const theme = useTheme();
@@ -145,6 +147,7 @@ const ChannelInfo = ({
                         canManageSettings={canManageSettings}
                         isPlaybooksEnabled={isPlaybooksEnabled}
                         channel={channel}
+                        isOfficial={isOfficial}
                     />
                     <View style={styles.separator}/>
                     {convertGMOptionAvailable &&
@@ -172,6 +175,7 @@ const ChannelInfo = ({
                         componentId={componentId}
                         type={type}
                         channel={channel}
+                        isOfficial={isOfficial}
                     />
                 </ScrollView>
             </SafeAreaView>

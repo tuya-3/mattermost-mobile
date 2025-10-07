@@ -1,11 +1,10 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 
 import LeaveChannelLabel from '@components/channel_actions/leave_channel_label';
 import {General} from '@constants';
-import {isOfficialTunagChannel} from '@utils/official_channel_utils';
 
 import Archive from './archive';
 import ConvertPrivate from './convert_private';
@@ -17,17 +16,10 @@ type Props = {
     componentId: AvailableScreens;
     type?: ChannelType;
     channel?: Channel;
+    isOfficial?: boolean;
 }
 
-const DestructiveOptions = ({channelId, componentId, type, channel}: Props) => {
-    const [isOfficial, setIsOfficial] = useState(false);
-
-    useEffect(() => {
-        if (channel) {
-            isOfficialTunagChannel(channel).then(setIsOfficial);
-        }
-    }, [channel]);
-
+const DestructiveOptions = ({channelId, componentId, type, isOfficial = false}: Props) => {
     if (isOfficial) {
         return null;
     }

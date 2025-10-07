@@ -26,6 +26,7 @@ type Props = {
     isPlaybooksEnabled: boolean;
     canManageSettings: boolean;
     channel?: Channel;
+    isOfficial: boolean;
 }
 
 const Options = ({
@@ -37,6 +38,7 @@ const Options = ({
     isPlaybooksEnabled,
     canManageSettings,
     channel,
+    isOfficial,
 }: Props) => {
     const isDMorGM = isTypeDMorGM(type);
 
@@ -60,10 +62,16 @@ const Options = ({
             />
             }
             {type !== General.DM_CHANNEL &&
-                <Members channelId={channelId}/>
+                <Members
+                    channelId={channelId}
+                    isOfficial={isOfficial}
+                />
             }
-            {canManageMembers &&
-                <AddMembers channelId={channelId}/>
+            {canManageMembers && !isOfficial &&
+                <AddMembers
+                    channelId={channelId}
+                    isOfficial={isOfficial}
+                />
             }
             {callsEnabled && !isDMorGM && // if calls is not enabled, copy link will show in the channel actions
                 <CopyChannelLinkOption
@@ -71,10 +79,11 @@ const Options = ({
                     testID='channel_info.options.copy_channel_link.option'
                 />
             }
-            {canManageSettings &&
+            {canManageSettings && !isOfficial &&
                 <EditChannel
                     channelId={channelId}
                     channel={channel}
+                    isOfficial={isOfficial}
                 />
             }
         </>

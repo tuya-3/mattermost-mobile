@@ -13,6 +13,7 @@ import type {WithDatabaseArgs} from '@typings/database/database';
 
 type Props = WithDatabaseArgs & {
     channelId: string;
+    isOfficial?: boolean;
 }
 
 const enhanced = withObservables(['channelId'], ({channelId, database}: Props) => {
