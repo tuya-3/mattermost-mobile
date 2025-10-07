@@ -1,6 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+import {firstValueFrom} from 'rxjs';
+
 import {General, Permissions} from '@constants';
 import DatabaseManager from '@database/manager';
 import TestHelper from '@test/test_helper';
@@ -36,7 +38,7 @@ describe('Official Channel Role Restrictions', () => {
     });
 
     describe('observeCanManageChannelMembers with Official Channel Support', () => {
-        it('should return false for official TUNAG channels regardless of permissions', (done) => {
+        it('should return false for official TUNAG channels regardless of permissions', async () => {
             mockedIsOfficialTunagChannel.mockResolvedValue(true);
 
             const mockUser = TestHelper.fakeUserModel({
@@ -45,7 +47,7 @@ describe('Official Channel Role Restrictions', () => {
             });
 
             // Add roles with full permissions
-            operator.handleRole({
+            await operator.handleRole({
                 roles: [
                     {
                         id: 'system_admin',
@@ -59,33 +61,31 @@ describe('Official Channel Role Restrictions', () => {
                     },
                 ],
                 prepareRecordsOnly: false,
-            }).then(() => {
-                return operator.handleChannel({
-                    channels: [TestHelper.fakeChannel({
-                        id: 'official-channel',
-                        type: General.OPEN_CHANNEL,
-                        creator_id: 'tunag-12345-company-admin', // Official channel creator
-                        name: 'official-channel',
-                    })],
-                    prepareRecordsOnly: false,
-                });
-            }).then(() => {
+            });
+
+            await operator.handleChannel({
+                channels: [TestHelper.fakeChannel({
+                    id: 'official-channel',
+                    type: General.OPEN_CHANNEL,
+                    creator_id: 'tunag-12345-company-admin', // Official channel creator
+                    name: 'official-channel',
+                })],
+                prepareRecordsOnly: false,
+            });
+
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'official-channel',
                     mockUser,
-                ).subscribe({
-                    next: (canManage) => {
-                        expect(canManage).toBe(false);
-                        expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
-                        done();
-                    },
-                    error: done,
-                });
-            });
+                ),
+            );
+
+            expect(canManage).toBe(false);
+            expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
         });
 
-        it('should return false for official private channels', (done) => {
+        it('should return false for official private channels', async () => {
             mockedIsOfficialTunagChannel.mockResolvedValue(true);
 
             const mockUser = TestHelper.fakeUserModel({
@@ -93,40 +93,38 @@ describe('Official Channel Role Restrictions', () => {
                 roles: 'system_admin',
             });
 
-            operator.handleRole({
+            await operator.handleRole({
                 roles: [{
                     id: 'system_admin',
                     name: 'system_admin',
                     permissions: [Permissions.MANAGE_SYSTEM, Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS],
                 }],
                 prepareRecordsOnly: false,
-            }).then(() => {
-                return operator.handleChannel({
-                    channels: [TestHelper.fakeChannel({
-                        id: 'official-private-channel',
-                        type: General.PRIVATE_CHANNEL,
-                        creator_id: 'tunag-54321-corp-admin',
-                        name: 'official-private-channel',
-                    })],
-                    prepareRecordsOnly: false,
-                });
-            }).then(() => {
+            });
+
+            await operator.handleChannel({
+                channels: [TestHelper.fakeChannel({
+                    id: 'official-private-channel',
+                    type: General.PRIVATE_CHANNEL,
+                    creator_id: 'tunag-54321-corp-admin',
+                    name: 'official-private-channel',
+                })],
+                prepareRecordsOnly: false,
+            });
+
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'official-private-channel',
                     mockUser,
-                ).subscribe({
-                    next: (canManage) => {
-                        expect(canManage).toBe(false);
-                        expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
-                        done();
-                    },
-                    error: done,
-                });
-            });
+                ),
+            );
+
+            expect(canManage).toBe(false);
+            expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
         });
 
-        it('should check normal permissions for non-official channels', (done) => {
+        it('should check normal permissions for non-official channels', async () => {
             mockedIsOfficialTunagChannel.mockResolvedValue(false);
 
             const mockUser = TestHelper.fakeUserModel({
@@ -134,42 +132,40 @@ describe('Official Channel Role Restrictions', () => {
                 roles: 'channel_admin',
             });
 
-            operator.handleRole({
+            await operator.handleRole({
                 roles: [{
                     id: 'channel_admin',
                     name: 'channel_admin',
                     permissions: [Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS],
                 }],
                 prepareRecordsOnly: false,
-            }).then(() => {
-                return operator.handleChannel({
-                    channels: [TestHelper.fakeChannel({
-                        id: 'regular-channel',
-                        type: General.OPEN_CHANNEL,
-                        creator_id: 'regular-user',
-                        name: 'regular-channel',
-                    })],
-                    prepareRecordsOnly: false,
-                });
-            }).then(() => {
+            });
+
+            await operator.handleChannel({
+                channels: [TestHelper.fakeChannel({
+                    id: 'regular-channel',
+                    type: General.OPEN_CHANNEL,
+                    creator_id: 'regular-user',
+                    name: 'regular-channel',
+                })],
+                prepareRecordsOnly: false,
+            });
+
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'regular-channel',
                     mockUser,
-                ).subscribe({
-                    next: (canManage) => {
-                        expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
+                ),
+            );
 
-                        // Should check normal permissions for non-official channels
-                        expect(canManage).toBe(true);
-                        done();
-                    },
-                    error: done,
-                });
-            });
+            expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
+
+            // Should check normal permissions for non-official channels
+            expect(canManage).toBe(true);
         });
 
-        it('should handle isOfficialTunagChannel promise rejection gracefully', (done) => {
+        it('should handle isOfficialTunagChannel promise rejection gracefully', async () => {
             mockedIsOfficialTunagChannel.mockImplementation(() => {
                 return Promise.reject(new Error('Database connection failed'));
             });
@@ -179,52 +175,47 @@ describe('Official Channel Role Restrictions', () => {
                 roles: 'channel_admin',
             });
 
-            operator.handleRole({
+            await operator.handleRole({
                 roles: [{
                     id: 'channel_admin',
                     name: 'channel_admin',
                     permissions: [Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS],
                 }],
                 prepareRecordsOnly: false,
-            }).then(() => {
-                return operator.handleChannel({
-                    channels: [TestHelper.fakeChannel({
-                        id: 'test-channel',
-                        type: General.OPEN_CHANNEL,
-                        creator_id: 'some-user',
-                        name: 'test-channel',
-                    })],
-                    prepareRecordsOnly: false,
-                });
-            }).then(() => {
+            });
+
+            await operator.handleChannel({
+                channels: [TestHelper.fakeChannel({
+                    id: 'test-channel',
+                    type: General.OPEN_CHANNEL,
+                    creator_id: 'some-user',
+                    name: 'test-channel',
+                })],
+                prepareRecordsOnly: false,
+            });
+
+            // Should handle errors gracefully and fall back to normal permission check
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'test-channel',
                     mockUser,
-                ).subscribe({
-                    next: () => {
-                        // Should handle errors gracefully and fall back to normal permission check
-                        expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
+                ),
+            );
 
-                        // The observable should still emit a value despite the error
-                        done();
-                    },
-                    error: () => {
-                        // If error is propagated, that's also acceptable behavior
-                        expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
-                        done();
-                    },
-                });
-            }).catch(done);
+            expect(mockedIsOfficialTunagChannel).toHaveBeenCalled();
+
+            // The observable should still emit a value despite the error (due to catchError)
+            expect(typeof canManage).toBe('boolean');
         });
 
-        it('should not call isOfficialTunagChannel for deleted channels', (done) => {
+        it('should not call isOfficialTunagChannel for deleted channels', async () => {
             const mockUser = TestHelper.fakeUserModel({
                 id: 'user1',
                 roles: 'system_admin',
             });
 
-            operator.handleChannel({
+            await operator.handleChannel({
                 channels: [TestHelper.fakeChannel({
                     id: 'deleted-channel',
                     type: General.OPEN_CHANNEL,
@@ -233,29 +224,27 @@ describe('Official Channel Role Restrictions', () => {
                     name: 'deleted-channel',
                 })],
                 prepareRecordsOnly: false,
-            }).then(() => {
+            });
+
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'deleted-channel',
                     mockUser,
-                ).subscribe({
-                    next: (canManage) => {
-                        expect(canManage).toBe(false);
-                        expect(mockedIsOfficialTunagChannel).not.toHaveBeenCalled();
-                        done();
-                    },
-                    error: done,
-                });
-            });
+                ),
+            );
+
+            expect(canManage).toBe(false);
+            expect(mockedIsOfficialTunagChannel).not.toHaveBeenCalled();
         });
 
-        it('should not call isOfficialTunagChannel for DM channels', (done) => {
+        it('should not call isOfficialTunagChannel for DM channels', async () => {
             const mockUser = TestHelper.fakeUserModel({
                 id: 'user1',
                 roles: 'system_admin',
             });
 
-            operator.handleChannel({
+            await operator.handleChannel({
                 channels: [TestHelper.fakeChannel({
                     id: 'dm-channel',
                     type: General.DM_CHANNEL,
@@ -263,29 +252,27 @@ describe('Official Channel Role Restrictions', () => {
                     name: 'dm-channel',
                 })],
                 prepareRecordsOnly: false,
-            }).then(() => {
+            });
+
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'dm-channel',
                     mockUser,
-                ).subscribe({
-                    next: (canManage) => {
-                        expect(canManage).toBe(false);
-                        expect(mockedIsOfficialTunagChannel).not.toHaveBeenCalled();
-                        done();
-                    },
-                    error: done,
-                });
-            });
+                ),
+            );
+
+            expect(canManage).toBe(false);
+            expect(mockedIsOfficialTunagChannel).not.toHaveBeenCalled();
         });
 
-        it('should not call isOfficialTunagChannel for default channels', (done) => {
+        it('should not call isOfficialTunagChannel for default channels', async () => {
             const mockUser = TestHelper.fakeUserModel({
                 id: 'user1',
                 roles: 'system_admin',
             });
 
-            operator.handleChannel({
+            await operator.handleChannel({
                 channels: [TestHelper.fakeChannel({
                     id: 'default-channel',
                     type: General.OPEN_CHANNEL,
@@ -293,20 +280,18 @@ describe('Official Channel Role Restrictions', () => {
                     creator_id: 'tunag-12345-company-admin',
                 })],
                 prepareRecordsOnly: false,
-            }).then(() => {
+            });
+
+            const canManage = await firstValueFrom(
                 observeCanManageChannelMembers(
                     database,
                     'default-channel',
                     mockUser,
-                ).subscribe({
-                    next: (canManage) => {
-                        expect(canManage).toBe(false);
-                        expect(mockedIsOfficialTunagChannel).not.toHaveBeenCalled();
-                        done();
-                    },
-                    error: done,
-                });
-            });
+                ),
+            );
+
+            expect(canManage).toBe(false);
+            expect(mockedIsOfficialTunagChannel).not.toHaveBeenCalled();
         });
     });
 });
