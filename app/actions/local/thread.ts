@@ -1,18 +1,19 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+import {defineMessages} from 'react-intl';
 import {DeviceEventEmitter} from 'react-native';
 
 import {ActionType, General, Navigation, Screens} from '@constants';
 import DatabaseManager from '@database/manager';
-import {getTranslations, t} from '@i18n';
+import {getTranslations} from '@i18n';
 import {getChannelById} from '@queries/servers/channel';
 import {getPostById} from '@queries/servers/post';
 import {getCurrentTeamId, getCurrentUserId, prepareCommonSystemValues, type PrepareCommonSystemValuesArgs, setCurrentTeamAndChannelId} from '@queries/servers/system';
 import {addChannelToTeamHistory, addTeamToTeamHistory} from '@queries/servers/team';
 import {getThreadById, prepareThreadsFromReceivedPosts, queryThreadsInTeam} from '@queries/servers/thread';
 import {getCurrentUser} from '@queries/servers/user';
-import {dismissAllModals, dismissAllModalsAndPopToRoot, dismissAllOverlays, goToScreen} from '@screens/navigation';
+import {dismissAllModals, dismissAllModalsAndPopToRoot, dismissAllOverlaysWithExceptions, goToScreen} from '@screens/navigation';
 import EphemeralStore from '@store/ephemeral_store';
 import NavigationStore from '@store/navigation_store';
 import {isTablet} from '@utils/helpers';
@@ -57,6 +58,17 @@ export const switchToGlobalThreads = async (serverUrl: string, teamId?: string, 
     }
 };
 
+const threadMessages = defineMessages({
+    thread: {
+        id: 'thread.header.thread',
+        defaultMessage: 'Thread',
+    },
+    threadIn: {
+        id: 'thread.header.thread_in',
+        defaultMessage: 'in {channelName}',
+    },
+});
+
 export const switchToThread = async (serverUrl: string, rootId: string, isFromNotification = false) => {
     try {
         const {database, operator} = DatabaseManager.getServerDatabaseAndOperator(serverUrl);
@@ -83,7 +95,7 @@ export const switchToThread = async (serverUrl: string, rootId: string, isFromNo
         if (isFromNotification) {
             if (currentThreadId && currentThreadId === rootId && NavigationStore.getScreensInStack().includes(Screens.THREAD)) {
                 await dismissAllModals();
-                await dismissAllOverlays();
+                await dismissAllOverlaysWithExceptions();
                 return {};
             }
 
@@ -112,14 +124,14 @@ export const switchToThread = async (serverUrl: string, rootId: string, isFromNo
         const translations = getTranslations(user.locale);
 
         // Get title translation or default title message
-        const title = translations[t('thread.header.thread')] || 'Thread';
+        const title = translations[threadMessages.thread.id] || 'Thread';
 
         let subtitle = '';
         if (channel?.type === General.DM_CHANNEL) {
             subtitle = channel.displayName;
         } else {
             // Get translation or default message
-            subtitle = translations[t('thread.header.thread_in')] || 'in {channelName}';
+            subtitle = translations[threadMessages.threadIn.id] || 'in {channelName}';
             subtitle = subtitle.replace('{channelName}', channel.displayName);
         }
 

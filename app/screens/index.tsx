@@ -12,6 +12,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Screens} from '@constants';
 import {withServerDatabase} from '@database/components';
 import {DEFAULT_LOCALE, getTranslations} from '@i18n';
+import {loadPlaybooksScreen} from '@playbooks/screens';
+import {logDebug} from '@utils/log';
 
 const withGestures = (Screen: React.ComponentType) => {
     return function gestureHoc(props: any) {
@@ -137,6 +139,11 @@ Navigation.setLazyComponentRegistrator((screenName) => {
         case Screens.GENERIC_OVERLAY:
             screen = withServerDatabase(require('@screens/overlay').default);
             break;
+        case Screens.FLOATING_BANNER: {
+            const floatingBannerScreen = withServerDatabase(require('@screens/floating_banner').default);
+            Navigation.registerComponent(Screens.FLOATING_BANNER, () => withSafeAreaInsets(floatingBannerScreen));
+            return;
+        }
         case Screens.GLOBAL_DRAFTS:
             screen = withServerDatabase(require('@screens/global_drafts').default);
             break;
@@ -188,12 +195,6 @@ Navigation.setLazyComponentRegistrator((screenName) => {
             break;
         case Screens.PINNED_MESSAGES:
             screen = withServerDatabase(require('@screens/pinned_messages').default);
-            break;
-        case Screens.PLAYBOOKS_RUNS:
-            screen = withServerDatabase(require('@playbooks/screens/playbooks_runs').default);
-            break;
-        case Screens.PLAYBOOK_RUN:
-            screen = withServerDatabase(require('@playbooks/screens/playbook_run').default);
             break;
         case Screens.POST_OPTIONS:
             screen = withServerDatabase(require('@screens/post_options').default);
@@ -306,6 +307,14 @@ Navigation.setLazyComponentRegistrator((screenName) => {
         case Screens.SCHEDULED_POST_OPTIONS:
             screen = withServerDatabase(require('@screens/scheduled_post_options').default);
             break;
+    }
+
+    if (!screen) {
+        screen = loadPlaybooksScreen(screenName);
+    }
+
+    if (!screen) {
+        logDebug(`Screen not found: ${screenName}`);
     }
 
     if (screen) {

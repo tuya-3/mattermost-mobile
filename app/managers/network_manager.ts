@@ -76,9 +76,9 @@ class NetworkManagerSingleton {
     };
 
     public init = async (serverCredentials: ServerCredential[]) => {
-        for await (const {serverUrl, token} of serverCredentials) {
+        for await (const {serverUrl, token, preauthSecret} of serverCredentials) {
             try {
-                await this.createClient(serverUrl, token);
+                await this.createClient(serverUrl, token, preauthSecret);
             } catch (error) {
                 logError('NetworkManager init error', error);
             }
@@ -99,12 +99,15 @@ class NetworkManagerSingleton {
         return client;
     };
 
-    public createClient = async (serverUrl: string, bearerToken?: string) => {
-        const config = await this.buildConfig();
+    public createClient = async (serverUrl: string, bearerToken?: string, preauthSecret?: string) => {
+        const config = await this.buildConfig(preauthSecret);
+
         try {
             const {client} = await getOrCreateAPIClient(serverUrl, config, this.clientErrorEventHandler);
             const csrfToken = await getCSRFFromCookie(serverUrl);
-            this.clients[serverUrl] = new Client(client, serverUrl, bearerToken, csrfToken);
+
+            // Pass preauthSecret explicitly to constructor to match ClientBase behavior
+            this.clients[serverUrl] = new Client(client, serverUrl, bearerToken, csrfToken, preauthSecret);
         } catch (error) {
             throw new ClientError(serverUrl, {
                 message: 'Can’t find this server. Check spelling and URL format.',
@@ -120,11 +123,12 @@ class NetworkManagerSingleton {
         return this.clients[serverUrl];
     };
 
-    private buildConfig = async () => {
+    private buildConfig = async (preauthSecret?: string) => {
         const userAgent = `Mattermost Mobile/${nativeApplicationVersion}+${nativeBuildVersion} (${osName}; ${osVersion}; ${modelName})`;
         const managedConfig = ManagedApp.enabled ? Emm.getManagedConfig<ManagedConfig>() : undefined;
         const headers: Record<string, string> = {
             [ClientConstants.HEADER_USER_AGENT]: userAgent,
+            ...(preauthSecret ? {[ClientConstants.HEADER_X_MATTERMOST_PREAUTH_SECRET]: preauthSecret} : {}),
             ...this.DEFAULT_CONFIG.headers,
         };
 
@@ -135,7 +139,7 @@ class NetworkManagerSingleton {
                 timeoutIntervalForRequest: managedConfig?.timeout ? parseInt(managedConfig.timeout, 10) : this.DEFAULT_CONFIG.sessionConfiguration?.timeoutIntervalForRequest,
                 timeoutIntervalForResource: managedConfig?.timeoutVPN ? parseInt(managedConfig.timeoutVPN, 10) : this.DEFAULT_CONFIG.sessionConfiguration?.timeoutIntervalForResource,
                 waitsForConnectivity: managedConfig?.useVPN === 'true',
-                collectMetrics: LocalConfig.CollectNetworkMetrics,
+                collectMetrics: true,
             },
             headers,
         };

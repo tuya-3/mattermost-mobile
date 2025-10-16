@@ -5,23 +5,24 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 import UserList from '@components/user_list';
 import {General} from '@constants';
-import {useServerUrl} from '@context/server';
-import {debounce} from '@helpers/api/general';
+import {useDebounce} from '@hooks/utils';
 import {filterProfilesMatchingTerm} from '@utils/user';
 
 import type {AvailableScreens} from '@typings/screens/navigation';
+import type {SectionListData} from 'react-native';
 
 type Props = {
     currentUserId: string;
     tutorialWatched: boolean;
     handleSelectProfile: (user: UserProfile) => void;
     term: string;
-    selectedIds: {[id: string]: UserProfile};
+    selectedIds: Set<string>;
     fetchFunction: (page: number) => Promise<UserProfile[]>;
     searchFunction: (term: string) => Promise<UserProfile[]>;
     createFilter: (exactMatches: UserProfile[], term: string) => ((p: UserProfile) => boolean);
     testID: string;
     location: AvailableScreens;
+    customSection?: (profiles: UserProfile[]) => Array<SectionListData<UserProfile>>;
 }
 
 export default function ServerUserList({
@@ -35,9 +36,8 @@ export default function ServerUserList({
     createFilter,
     testID,
     location,
+    customSection,
 }: Props) {
-    const serverUrl = useServerUrl();
-
     const searchTimeoutId = useRef<NodeJS.Timeout | null>(null);
     const next = useRef(true);
     const page = useRef(-1);
@@ -67,19 +67,19 @@ export default function ServerUserList({
         }
     };
 
-    const getProfiles = useCallback(debounce(() => {
+    const getProfiles = useDebounce(useCallback(() => {
         if (next.current && !loading && !term && mounted.current) {
             setLoading(true);
             fetchFunction(page.current + 1).then(loadedProfiles);
         }
-    }, 100), [loading, isSearch, serverUrl]);
+    }, [loading, term, fetchFunction]), 100);
 
     const searchUsers = useCallback(async (searchTerm: string) => {
         setLoading(true);
         const data = await searchFunction(searchTerm);
         setSearchResults(data);
         setLoading(false);
-    }, [serverUrl, searchFunction]);
+    }, [searchFunction]);
 
     useEffect(() => {
         if (term) {
@@ -93,6 +93,9 @@ export default function ServerUserList({
         } else {
             setSearchResults([]);
         }
+
+        // We only want to run the search when the term changes
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [term]);
 
     useEffect(() => {
@@ -101,6 +104,9 @@ export default function ServerUserList({
         return () => {
             mounted.current = false;
         };
+
+        // We only want to get the profiles on mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const data = useMemo(() => {
@@ -113,7 +119,7 @@ export default function ServerUserList({
             return [...exactMatches, ...results];
         }
         return profiles;
-    }, [term, isSearch, isSearch && searchResults, profiles]);
+    }, [isSearch, profiles, createFilter, term, searchResults]);
 
     return (
         <UserList
@@ -129,6 +135,7 @@ export default function ServerUserList({
             tutorialWatched={tutorialWatched}
             includeUserMargin={true}
             location={location}
+            customSection={customSection}
         />
     );
 }

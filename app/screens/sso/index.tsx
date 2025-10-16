@@ -6,7 +6,7 @@ import {StyleSheet, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-import {ssoLogin} from '@actions/remote/session';
+import {ssoLogin, ssoLoginWithCodeExchange} from '@actions/remote/session';
 import {Screens, Sso} from '@constants';
 import useAndroidHardwareBackHandler from '@hooks/android_back_handler';
 import useNavButtonPressed from '@hooks/navigation_button_pressed';
@@ -31,6 +31,7 @@ interface SSOProps extends LaunchProps {
     license: Partial<ClientLicense>;
     ssoType: string;
     serverDisplayName: string;
+    serverPreauthSecret?: string;
     theme: Theme;
 }
 
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
 const SSO = ({
     closeButtonId, componentId, config, extra,
     launchError, launchType, serverDisplayName,
-    serverUrl, ssoType, theme,
+    serverPreauthSecret, serverUrl, ssoType, theme,
 }: SSOProps) => {
     const [loginError, setLoginError] = useState<string>('');
     let loginUrl = '';
@@ -89,7 +90,16 @@ const SSO = ({
     };
 
     const doSSOLogin = async (bearerToken: string, csrfToken: string) => {
-        const result: LoginActionResponse = await ssoLogin(serverUrl!, serverDisplayName, config.DiagnosticId!, bearerToken, csrfToken);
+        const result: LoginActionResponse = await ssoLogin(serverUrl!, serverDisplayName, config.DiagnosticId!, bearerToken, csrfToken, serverPreauthSecret);
+        if (result?.error && result.failed) {
+            onLoadEndError(result.error);
+            return;
+        }
+        goToHome(result.error);
+    };
+
+    const doSSOCodeExchange = async (loginCode: string, samlChallenge: {codeVerifier: string; state: string}) => {
+        const result: LoginActionResponse = await ssoLoginWithCodeExchange(serverUrl!, serverDisplayName, config.DiagnosticId!, loginCode, samlChallenge, serverPreauthSecret);
         if (result?.error && result.failed) {
             onLoadEndError(result.error);
             return;
@@ -125,6 +135,7 @@ const SSO = ({
 
     const props = {
         doSSOLogin,
+        doSSOCodeExchange,
         loginError,
         loginUrl,
         setLoginError,

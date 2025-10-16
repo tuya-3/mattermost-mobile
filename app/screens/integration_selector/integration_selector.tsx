@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useIntl} from 'react-intl';
+import {defineMessages, useIntl} from 'react-intl';
 import {View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
@@ -14,10 +14,9 @@ import ServerUserList from '@components/server_user_list';
 import {General, Screens, View as ViewConstants} from '@constants';
 import {useServerUrl} from '@context/server';
 import {useTheme} from '@context/theme';
-import {debounce} from '@helpers/api/general';
 import useAndroidHardwareBackHandler from '@hooks/android_back_handler';
 import useNavButtonPressed from '@hooks/navigation_button_pressed';
-import {t} from '@i18n';
+import {useDebounce} from '@hooks/utils';
 import SecurityManager from '@managers/security_manager';
 import {
     buildNavigationButton,
@@ -165,6 +164,17 @@ const getStyleSheet = makeStyleSheetFromTheme((theme: Theme) => {
     };
 });
 
+const messages = defineMessages({
+    loadingChannels: {
+        id: 'mobile.integration_selector.loading_channels',
+        defaultMessage: 'Loading channels...',
+    },
+    loadingOptions: {
+        id: 'mobile.integration_selector.loading_options',
+        defaultMessage: 'Loading options...',
+    },
+});
+
 function IntegrationSelector(
     {dataSource, data, isMultiselect = false, selected, handleSelect,
         currentTeamId, currentUserId, componentId, getDynamicOptions, options}: Props) {
@@ -181,7 +191,19 @@ function IntegrationSelector(
     const [searchResults, setSearchResults] = useState<DataTypeList>([]);
 
     // Channels and DialogOptions, will be removed
-    const [multiselectSelected, setMultiselectSelected] = useState<MultiselectSelectedMap>({});
+    const [multiselectSelected, setMultiselectSelected] = useState<MultiselectSelectedMap>(() => {
+        const multiselectItems: MultiselectSelectedMap = {};
+
+        if (isMultiselect && Array.isArray(selected) && !([ViewConstants.DATA_SOURCE_USERS, ViewConstants.DATA_SOURCE_CHANNELS].includes(dataSource))) {
+            for (const value of selected) {
+                const option = filteredOptions?.find((opt) => opt.value === value);
+                if (option) {
+                    multiselectItems[value] = option;
+                }
+            }
+        }
+        return multiselectItems;
+    });
 
     // Users selection and in the future Channels and DialogOptions
     const [selectedIds, setSelectedIds] = useState<{[id: string]: DataType}>({});
@@ -254,7 +276,7 @@ function IntegrationSelector(
         }
     }, [dataSource]);
 
-    const getChannels = useCallback(debounce(async () => {
+    const getChannels = useDebounce(useCallback(async () => {
         if (next.current && !loading && !term) {
             setLoading(true);
             page.current += 1;
@@ -269,7 +291,7 @@ function IntegrationSelector(
                 next.current = false;
             }
         }
-    }, 100), [loading, term, serverUrl, currentTeamId, integrationData]);
+    }, [loading, term, serverUrl, currentTeamId, integrationData]), 100);
 
     const loadMore = useCallback(async () => {
         if (dataSource === ViewConstants.DATA_SOURCE_CHANNELS) {
@@ -374,6 +396,9 @@ function IntegrationSelector(
             // Static and dynamic option search
             searchDynamicOptions('');
         }
+
+        // We only want to get the channels on mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -388,6 +413,9 @@ function IntegrationSelector(
         }
 
         setCustomListData(listData);
+
+        // We only want to update the list data when the search results or integration data changes
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchResults, integrationData]);
 
     useEffect(() => {
@@ -400,21 +428,6 @@ function IntegrationSelector(
         });
     }, [rightButton, componentId, isMultiselect]);
 
-    useEffect(() => {
-        const multiselectItems: MultiselectSelectedMap = {};
-
-        if (isMultiselect && Array.isArray(selected) && !([ViewConstants.DATA_SOURCE_USERS, ViewConstants.DATA_SOURCE_CHANNELS].includes(dataSource))) {
-            for (const value of selected) {
-                const option = filteredOptions?.find((opt) => opt.value === value);
-                if (option) {
-                    multiselectItems[value] = option;
-                }
-            }
-
-            setMultiselectSelected(multiselectItems);
-        }
-    }, []);
-
     // Renders
     const renderLoading = useCallback(() => {
         if (!loading) {
@@ -424,16 +437,10 @@ function IntegrationSelector(
         let text;
         switch (dataSource) {
             case ViewConstants.DATA_SOURCE_CHANNELS:
-                text = {
-                    id: t('mobile.integration_selector.loading_channels'),
-                    defaultMessage: 'Loading Channels...',
-                };
+                text = messages.loadingChannels;
                 break;
             default:
-                text = {
-                    id: t('mobile.integration_selector.loading_options'),
-                    defaultMessage: 'Loading Options...',
-                };
+                text = messages.loadingOptions;
                 break;
         }
 
@@ -556,6 +563,14 @@ function IntegrationSelector(
         };
     }, []);
 
+    const selectedUserIds = useMemo<Set<string>>(() => {
+        if (dataSource === ViewConstants.DATA_SOURCE_USERS) {
+            return new Set(Object.keys(selectedIds));
+        }
+
+        return new Set();
+    }, [dataSource, selectedIds]);
+
     const renderDataTypeList = () => {
         switch (dataSource) {
             case ViewConstants.DATA_SOURCE_USERS:
@@ -565,7 +580,7 @@ function IntegrationSelector(
                         term={term}
                         tutorialWatched={true}
                         handleSelectProfile={handleSelectProfile}
-                        selectedIds={selectedIds as {[id: string]: UserProfile}}
+                        selectedIds={selectedUserIds}
                         fetchFunction={userFetchFunction}
                         searchFunction={userSearchFunction}
                         createFilter={createUserFilter}

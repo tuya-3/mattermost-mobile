@@ -30,16 +30,19 @@ type Props = {
     canAddBookmarks: boolean;
     canEnableDisableCalls: boolean;
     canManageSettings: boolean;
+    channel?: Channel;
     channelId: string;
     closeButtonId: string;
     componentId: AvailableScreens;
     isBookmarksEnabled: boolean;
     isCallsEnabledInChannel: boolean;
+    isPlaybooksEnabled: boolean;
     groupCallsAllowed: boolean;
     canManageMembers: boolean;
     isConvertGMFeatureAvailable: boolean;
     isCRTEnabled: boolean;
     isGuestUser: boolean;
+    isOfficial: boolean;
     type?: ChannelType;
 }
 
@@ -65,15 +68,18 @@ const ChannelInfo = ({
     canEnableDisableCalls,
     canManageMembers,
     canManageSettings,
+    channel,
     channelId,
     closeButtonId,
     componentId,
     isBookmarksEnabled,
     isCallsEnabledInChannel,
+    isPlaybooksEnabled,
     groupCallsAllowed,
     isConvertGMFeatureAvailable,
     isCRTEnabled,
     isGuestUser,
+    isOfficial,
     type,
 }: Props) => {
     const theme = useTheme();
@@ -139,6 +145,9 @@ const ChannelInfo = ({
                         canManageMembers={canManageMembers}
                         isCRTEnabled={isCRTEnabled}
                         canManageSettings={canManageSettings}
+                        isPlaybooksEnabled={isPlaybooksEnabled}
+                        channel={channel}
+                        isOfficial={isOfficial}
                     />
                     <View style={styles.separator}/>
                     {convertGMOptionAvailable &&
@@ -165,6 +174,8 @@ const ChannelInfo = ({
                         channelId={channelId}
                         componentId={componentId}
                         type={type}
+                        channel={channel}
+                        isOfficial={isOfficial}
                     />
                 </ScrollView>
             </SafeAreaView>

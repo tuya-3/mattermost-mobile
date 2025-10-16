@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useCallback, useRef, useState} from 'react';
-import {useIntl} from 'react-intl';
+import {defineMessages, useIntl} from 'react-intl';
 import {Keyboard, Platform, Text, View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Navigation} from 'react-native-navigation';
@@ -11,7 +11,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {sendPasswordResetEmail} from '@actions/remote/session';
 import Button from '@components/button';
-import FloatingTextInput from '@components/floating_text_input_label';
+import FloatingTextInput from '@components/floating_input/floating_text_input_label';
 import FormattedText from '@components/formatted_text';
 import {Screens} from '@constants';
 import useAndroidHardwareBackHandler from '@hooks/android_back_handler';
@@ -90,6 +90,13 @@ const getStyleSheet = makeStyleSheetFromTheme((theme: Theme) => ({
         ...typography('Heading', 1000),
     },
 }));
+
+const messages = defineMessages({
+    reset: {
+        id: 'password_send.reset',
+        defaultMessage: 'Reset Your Password',
+    },
+});
 
 const ForgotPassword = ({componentId, serverUrl, theme}: Props) => {
     const [email, setEmail] = useState<string>('');
@@ -191,8 +198,7 @@ const ForgotPassword = ({componentId, serverUrl, theme}: Props) => {
                     testID={'password_send.link.prepare'}
                 >
                     <FormattedText
-                        defaultMessage='Reset Your Password'
-                        id='password_send.reset'
+                        {...messages.reset}
                         testID='password_send.reset'
                         style={styles.header}
                     />
@@ -203,8 +209,7 @@ const ForgotPassword = ({componentId, serverUrl, theme}: Props) => {
                     />
                     <View style={styles.form}>
                         <FloatingTextInput
-                            autoCorrect={false}
-                            autoCapitalize={'none'}
+                            rawInput={true}
                             blurOnSubmit={true}
                             disableFullscreenUI={true}
                             enablesReturnKeyAutomatically={true}
@@ -214,7 +219,6 @@ const ForgotPassword = ({componentId, serverUrl, theme}: Props) => {
                             onChangeText={changeEmail}
                             onSubmitEditing={submitResetPassword}
                             returnKeyType='next'
-                            spellCheck={false}
                             testID='forgot.password.email'
                             theme={theme}
                             value={email}
@@ -225,7 +229,7 @@ const ForgotPassword = ({componentId, serverUrl, theme}: Props) => {
                                 disabled={!email}
                                 onPress={submitResetPassword}
                                 size='lg'
-                                text={formatMessage({id: 'password_send.reset', defaultMessage: 'Reset my password'})}
+                                text={formatMessage(messages.reset)}
                                 theme={theme}
                             />
                         </View>

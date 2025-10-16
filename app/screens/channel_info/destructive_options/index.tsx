@@ -15,9 +15,15 @@ type Props = {
     channelId: string;
     componentId: AvailableScreens;
     type?: ChannelType;
+    channel?: Channel;
+    isOfficial?: boolean;
 }
 
-const DestructiveOptions = ({channelId, componentId, type}: Props) => {
+const DestructiveOptions = ({channelId, componentId, type, isOfficial = false}: Props) => {
+    if (isOfficial) {
+        return null;
+    }
+
     return (
         <>
             {type === General.OPEN_CHANNEL &&

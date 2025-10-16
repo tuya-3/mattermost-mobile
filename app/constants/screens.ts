@@ -1,6 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+import PLAYBOOKS_SCREENS from '@playbooks/constants/screens';
+
 export const ABOUT = 'About';
 export const ACCOUNT = 'Account';
 export const APPS_FORM = 'AppForm';
@@ -34,6 +36,7 @@ export const FIND_CHANNELS = 'FindChannels';
 export const FORGOT_PASSWORD = 'ForgotPassword';
 export const GALLERY = 'Gallery';
 export const GENERIC_OVERLAY = 'GenericOverlay';
+export const FLOATING_BANNER = 'FloatingBanner';
 export const GLOBAL_DRAFTS = 'GlobalDrafts';
 export const GLOBAL_DRAFTS_AND_SCHEDULED_POSTS = 'GlobalDraftsAndScheduledPosts';
 export const GLOBAL_THREADS = 'GlobalThreads';
@@ -52,8 +55,6 @@ export const ONBOARDING = 'Onboarding';
 export const PDF_VIEWER = 'PdfViewer';
 export const PERMALINK = 'Permalink';
 export const PINNED_MESSAGES = 'PinnedMessages';
-export const PLAYBOOKS_RUNS = 'PlaybookRuns';
-export const PLAYBOOK_RUN = 'PlaybookRun';
 export const POST_OPTIONS = 'PostOptions';
 export const POST_PRIORITY_PICKER = 'PostPriorityPicker';
 export const REACTIONS = 'Reactions';
@@ -123,6 +124,7 @@ export default {
     FORGOT_PASSWORD,
     GALLERY,
     GENERIC_OVERLAY,
+    FLOATING_BANNER,
     GLOBAL_DRAFTS,
     GLOBAL_DRAFTS_AND_SCHEDULED_POSTS,
     GLOBAL_THREADS,
@@ -141,8 +143,6 @@ export default {
     PDF_VIEWER,
     PERMALINK,
     PINNED_MESSAGES,
-    PLAYBOOKS_RUNS,
-    PLAYBOOK_RUN,
     POST_OPTIONS,
     POST_PRIORITY_PICKER,
     REACTIONS,
@@ -178,6 +178,7 @@ export default {
     THREAD_FOLLOW_BUTTON,
     THREAD_OPTIONS,
     USER_PROFILE,
+    ...PLAYBOOKS_SCREENS,
 } as const;
 
 export const MODAL_SCREENS_WITHOUT_BACK = new Set<string>([
@@ -204,6 +205,7 @@ export const SCREENS_WITH_TRANSPARENT_BACKGROUND = new Set<string>([
     REVIEW_APP,
     SNACK_BAR,
     GENERIC_OVERLAY,
+    FLOATING_BANNER,
 ]);
 
 export const SCREENS_AS_BOTTOM_SHEET = new Set<string>([

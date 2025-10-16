@@ -23,7 +23,10 @@ type Props = {
     callsEnabled: boolean;
     canManageMembers: boolean;
     isCRTEnabled: boolean;
+    isPlaybooksEnabled: boolean;
     canManageSettings: boolean;
+    channel?: Channel;
+    isOfficial: boolean;
 }
 
 const Options = ({
@@ -32,7 +35,10 @@ const Options = ({
     callsEnabled,
     canManageMembers,
     isCRTEnabled,
+    isPlaybooksEnabled,
     canManageSettings,
+    channel,
+    isOfficial,
 }: Props) => {
     const isDMorGM = isTypeDMorGM(type);
 
@@ -49,15 +55,23 @@ const Options = ({
             <NotificationPreference channelId={channelId}/>
             <PinnedMessages channelId={channelId}/>
             <ChannelFiles channelId={channelId}/>
+            {isPlaybooksEnabled && !isDMorGM &&
             <PlaybookRunsOption
                 channelId={channelId}
                 location='channel_actions'
             />
-            {type !== General.DM_CHANNEL &&
-                <Members channelId={channelId}/>
             }
-            {canManageMembers &&
-                <AddMembers channelId={channelId}/>
+            {type !== General.DM_CHANNEL &&
+                <Members
+                    channelId={channelId}
+                    isOfficial={isOfficial}
+                />
+            }
+            {canManageMembers && !isOfficial &&
+                <AddMembers
+                    channelId={channelId}
+                    isOfficial={isOfficial}
+                />
             }
             {callsEnabled && !isDMorGM && // if calls is not enabled, copy link will show in the channel actions
                 <CopyChannelLinkOption
@@ -65,8 +79,12 @@ const Options = ({
                     testID='channel_info.options.copy_channel_link.option'
                 />
             }
-            {canManageSettings &&
-                <EditChannel channelId={channelId}/>
+            {canManageSettings && !isOfficial &&
+                <EditChannel
+                    channelId={channelId}
+                    channel={channel}
+                    isOfficial={isOfficial}
+                />
             }
         </>
     );

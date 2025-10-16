@@ -1,8 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See LICENSE.txt for license information.
+import {of as of$} from 'rxjs';
 
 import {MM_TABLES} from '@constants/database';
 import DatabaseManager from '@database/manager';
@@ -10,11 +9,13 @@ import TestHelper from '@test/test_helper';
 
 import {
     queryPlaybookRunsPerChannel,
+    queryPlaybookRunsByParticipant,
     getPlaybookRunById,
     observePlaybookRunById,
     observePlaybookRunProgress,
     getLastPlaybookRunsFetchAt,
     queryParticipantsFromAPIRun,
+    observeParticipantsIdsFromPlaybookModel,
 } from './run';
 
 import type ServerDataOperator from '@database/operator/server_data_operator';
@@ -419,6 +420,291 @@ describe('Playbook Run Queries', () => {
             expect(participantIds).toContain(participant1Id);
             expect(participantIds).toContain(participant2Id);
             expect(participantIds).not.toContain(ownerId);
+        });
+    });
+
+    describe('observeParticipantsIdsFromPlaybookModel', () => {
+        it('should return empty array when runModel is undefined', async () => {
+            const subscriptionNext = jest.fn();
+            const result = observeParticipantsIdsFromPlaybookModel(undefined);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([]);
+        });
+
+        it('should return all participant IDs excluding owner when includeOwner is false (default)', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+            const participant1Id = 'participant-1-id';
+            const participant2Id = 'participant-2-id';
+            const participant3Id = 'participant-3-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [ownerId, participant1Id, participant2Id, participant3Id],
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [ownerId, participant1Id, participant2Id, participant3Id],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([participant1Id, participant2Id, participant3Id]);
+        });
+
+        it('should return all participant IDs including owner when includeOwner is true', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+            const participant1Id = 'participant-1-id';
+            const participant2Id = 'participant-2-id';
+            const participant3Id = 'participant-3-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [ownerId, participant1Id, participant2Id, participant3Id],
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [ownerId, participant1Id, participant2Id, participant3Id],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel, true);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([ownerId, participant1Id, participant2Id, participant3Id]);
+        });
+
+        it('should return empty array when no participants exist and includeOwner is false', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [ownerId], // Only owner
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [ownerId],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([]);
+        });
+
+        it('should return only owner when no other participants exist and includeOwner is true', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [ownerId], // Only owner
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [ownerId],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel, true);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([ownerId]);
+        });
+
+        it('should handle case where owner is not in participantIds and includeOwner is false', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+            const participant1Id = 'participant-1-id';
+            const participant2Id = 'participant-2-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [participant1Id, participant2Id], // Owner not included
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [participant1Id, participant2Id],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([participant1Id, participant2Id]);
+        });
+
+        it('should handle case where owner is not in participantIds and includeOwner is true', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+            const participant1Id = 'participant-1-id';
+            const participant2Id = 'participant-2-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [participant1Id, participant2Id], // Owner not included
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [participant1Id, participant2Id],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel, true);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([participant1Id, participant2Id]);
+        });
+
+        it('should return empty array when participantIds is empty and includeOwner is false', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [], // Empty participants
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([]);
+        });
+
+        it('should return empty array when participantIds is empty and includeOwner is true', async () => {
+            const subscriptionNext = jest.fn();
+            const ownerId = 'owner-user-id';
+
+            const mockRunModel = TestHelper.fakePlaybookRunModel({
+                ownerUserId: ownerId,
+                participantIds: [], // Empty participants
+            });
+
+            // Mock the observe method to return the run model
+            mockRunModel.observe = jest.fn().mockReturnValue(
+                of$({
+                    participantIds: [],
+                    ownerUserId: ownerId,
+                }),
+            );
+
+            const result = observeParticipantsIdsFromPlaybookModel(mockRunModel, true);
+            result.subscribe({next: subscriptionNext});
+
+            expect(subscriptionNext).toHaveBeenCalledWith([]);
+        });
+    });
+
+    describe('queryPlaybookRunsByParticipant', () => {
+        it('should query playbook runs by participant ID', async () => {
+            const participantId = 'participant-id-1';
+            const mockRuns = TestHelper.createPlaybookRuns(2, 0, 0).map((run, index) => ({
+                ...run,
+                participant_ids: [participantId, 'other-participant'],
+                id: `run-${index}`,
+            }));
+
+            await operator.handlePlaybookRun({
+                runs: mockRuns,
+                prepareRecordsOnly: false,
+                removeAssociatedRecords: false,
+            });
+
+            const result = queryPlaybookRunsByParticipant(operator.database, participantId);
+            const fetchedRuns = await result.fetch();
+
+            expect(fetchedRuns.length).toBe(2);
+            const runIds = fetchedRuns.map((run) => run.id);
+            expect(runIds).toContain(mockRuns[0].id);
+            expect(runIds).toContain(mockRuns[1].id);
+
+            // Verify the runs are sorted by create_at desc
+            expect(fetchedRuns[0].createAt).toBeGreaterThanOrEqual(fetchedRuns[1].createAt);
+        });
+
+        it('should return empty array when no runs match participant ID', async () => {
+            const participantId = 'participant-id-1';
+            const nonMatchingParticipantId = 'other-participant';
+            const mockRuns = TestHelper.createPlaybookRuns(1, 0, 0).map((run) => ({
+                ...run,
+                participant_ids: [nonMatchingParticipantId],
+            }));
+
+            await operator.handlePlaybookRun({
+                runs: mockRuns,
+                prepareRecordsOnly: false,
+                removeAssociatedRecords: false,
+            });
+
+            const result = queryPlaybookRunsByParticipant(operator.database, participantId);
+            const fetchedRuns = await result.fetch();
+
+            expect(fetchedRuns.length).toBe(0);
+        });
+
+        it('should handle JSON array participant_ids properly', async () => {
+            const participantId = 'user123';
+            const mockRuns = TestHelper.createPlaybookRuns(3, 0, 0).map((run, index) => ({
+                ...run,
+                participant_ids: (() => {
+                    if (index === 0) {
+                        return [participantId];
+                    }
+                    if (index === 1) {
+                        return ['other', participantId, 'another'];
+                    }
+                    return ['different'];
+                })(),
+                id: `run-${index}`,
+            }));
+
+            await operator.handlePlaybookRun({
+                runs: mockRuns,
+                prepareRecordsOnly: false,
+                removeAssociatedRecords: false,
+            });
+
+            const result = queryPlaybookRunsByParticipant(operator.database, participantId);
+            const fetchedRuns = await result.fetch();
+
+            // Should only return the first two runs (index 0 and 1)
+            expect(fetchedRuns.length).toBe(2);
+            const runIds = fetchedRuns.map((run) => run.id);
+            expect(runIds).toContain(mockRuns[0].id);
+            expect(runIds).toContain(mockRuns[1].id);
+            expect(runIds).not.toContain(mockRuns[2].id);
         });
     });
 });

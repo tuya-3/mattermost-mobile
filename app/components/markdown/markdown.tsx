@@ -9,7 +9,7 @@ import React, {type ReactElement, useMemo, useRef} from 'react';
 import {Dimensions, type GestureResponderEvent, type StyleProp, StyleSheet, Text, type TextStyle, View, type ViewStyle} from 'react-native';
 
 import CompassIcon from '@components/compass_icon';
-import EditedIndicator from '@components/EditedIndicator';
+import EditedIndicator from '@components/edited_indicator';
 import Emoji from '@components/emoji';
 import FormattedText from '@components/formatted_text';
 import {logError} from '@utils/log';
@@ -122,6 +122,27 @@ const getExtraPropsForNode = (node: any) => {
     }
 
     return extraProps;
+};
+
+const renderHashtagWithStyles = (
+    context: string[],
+    hashtag: string,
+    textStyles: MarkdownTextStyles,
+    baseTextStyle: StyleProp<TextStyle>,
+) => {
+    const computedStyle = computeTextStyle(textStyles, baseTextStyle, context);
+    const linkStyle = [computedStyle, textStyles.link];
+    const headingIndex = context.findIndex((c) => c.includes('heading'));
+    if (headingIndex > -1) {
+        linkStyle.push(textStyles[context[headingIndex]]);
+    }
+
+    return (
+        <Hashtag
+            hashtag={hashtag}
+            linkStyle={linkStyle}
+        />
+    );
 };
 
 const Markdown = ({
@@ -277,18 +298,7 @@ const Markdown = ({
             return renderText({context, literal: `#${hashtag}`});
         }
 
-        const linkStyle = [textStyles.link];
-        const headingIndex = context.findIndex((c) => c.includes('heading'));
-        if (headingIndex > -1) {
-            linkStyle.push(textStyles[context[headingIndex]]);
-        }
-
-        return (
-            <Hashtag
-                hashtag={hashtag}
-                linkStyle={linkStyle}
-            />
-        );
+        return renderHashtagWithStyles(context, hashtag, textStyles, baseTextStyle);
     };
 
     const renderHeading = ({children, level}: {children: ReactElement; level: string}) => {
@@ -660,6 +670,10 @@ const Markdown = ({
     }
 
     return output;
+};
+
+export const testExports = {
+    renderHashtagWithStyles,
 };
 
 export default Markdown;

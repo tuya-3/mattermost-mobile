@@ -13,12 +13,14 @@ import type {WithDatabaseArgs} from '@typings/database/database';
 
 type Props = WithDatabaseArgs & {
     channelId: string;
+    isOfficial?: boolean;
 }
 
 const enhanced = withObservables(['channelId'], ({channelId, database}: Props) => {
     const info = observeChannelInfo(database, channelId);
+    const channel = observeChannel(database, channelId);
 
-    const displayName = observeChannel(database, channelId).pipe(
+    const displayName = channel.pipe(
         switchMap((c) => of$(c?.displayName)));
 
     const count = info.pipe(
@@ -28,6 +30,7 @@ const enhanced = withObservables(['channelId'], ({channelId, database}: Props) =
     return {
         displayName,
         count,
+        creatorId: channel.pipe(switchMap((c) => of$(c?.creatorId))),
     };
 });
 

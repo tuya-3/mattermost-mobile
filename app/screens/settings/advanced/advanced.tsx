@@ -2,57 +2,49 @@
 // See LICENSE.txt for license information.
 
 import React, {useCallback, useEffect, useState} from 'react';
-import {useIntl} from 'react-intl';
+import {defineMessage, useIntl} from 'react-intl';
 import {Alert, TouchableOpacity} from 'react-native';
 
+import {storeLowConnectivityMonitor} from '@actions/app/global';
+import SettingBlock from '@components/settings/block';
 import SettingContainer from '@components/settings/container';
 import SettingOption from '@components/settings/option';
 import SettingSeparator from '@components/settings/separator';
 import {Screens} from '@constants';
 import {useServerUrl} from '@context/server';
-import {useTheme} from '@context/theme';
 import useAndroidHardwareBackHandler from '@hooks/android_back_handler';
+import {usePreventDoubleTap} from '@hooks/utils';
 import {goToScreen, popTopScreen} from '@screens/navigation';
 import {deleteFileCache, getAllFilesInCachesDirectory, getFormattedFileSize} from '@utils/file';
-import {preventDoubleTap} from '@utils/tap';
-import {makeStyleSheetFromTheme} from '@utils/theme';
 
 import type {AvailableScreens} from '@typings/screens/navigation';
 import type {FileInfo} from 'expo-file-system';
-
-const getStyleSheet = makeStyleSheetFromTheme((theme) => {
-    return {
-        itemStyle: {
-            backgroundColor: theme.centerChannelBg,
-            paddingHorizontal: 20,
-        },
-    };
-});
 
 const EMPTY_FILES: FileInfo[] = [];
 
 type AdvancedSettingsProps = {
     componentId: AvailableScreens;
     isDevMode: boolean;
+    lowConnectivityMonitorEnabled: boolean;
 };
 const AdvancedSettings = ({
     componentId,
     isDevMode,
+    lowConnectivityMonitorEnabled,
 }: AdvancedSettingsProps) => {
-    const theme = useTheme();
     const intl = useIntl();
     const serverUrl = useServerUrl();
     const [dataSize, setDataSize] = useState<number | undefined>(0);
     const [files, setFiles] = useState<FileInfo[]>(EMPTY_FILES);
-    const styles = getStyleSheet(theme);
+    const [isLowConnectivityMonitorEnabled, setIsLowConnectivityMonitorEnabled] = useState(lowConnectivityMonitorEnabled);
 
-    const getAllCachedFiles = async () => {
+    const getAllCachedFiles = useCallback(async () => {
         const {totalSize = 0, files: cachedFiles} = await getAllFilesInCachesDirectory(serverUrl);
         setDataSize(totalSize);
         setFiles(cachedFiles || EMPTY_FILES);
-    };
+    }, [serverUrl]);
 
-    const onPressDeleteData = preventDoubleTap(async () => {
+    const onPressDeleteData = usePreventDoubleTap(useCallback(async () => {
         try {
             if (files.length > 0) {
                 const {formatMessage} = intl;
@@ -80,18 +72,23 @@ const AdvancedSettings = ({
         } catch (e) {
             //do nothing
         }
-    });
+    }, [files.length, getAllCachedFiles, intl, serverUrl]));
 
-    const onPressComponentLibrary = () => {
+    const onPressComponentLibrary = useCallback(() => {
         const screen = Screens.COMPONENT_LIBRARY;
         const title = intl.formatMessage({id: 'settings.advanced_settings.component_library', defaultMessage: 'Component library'});
 
         goToScreen(screen, title);
-    };
+    }, [intl]);
+
+    const onToggleLowConnectivityMonitor = useCallback(async (value: boolean) => {
+        setIsLowConnectivityMonitorEnabled(value);
+        await storeLowConnectivityMonitor(value);
+    }, []);
 
     useEffect(() => {
         getAllCachedFiles();
-    }, []);
+    }, [getAllCachedFiles]);
 
     const close = useCallback(() => {
         popTopScreen(componentId);
@@ -109,7 +106,6 @@ const AdvancedSettings = ({
                 activeOpacity={hasData ? 1 : 0}
             >
                 <SettingOption
-                    containerStyle={styles.itemStyle}
                     destructive={true}
                     icon='trash-can-outline'
                     info={getFormattedFileSize(dataSize || 0)}
@@ -124,14 +120,34 @@ const AdvancedSettings = ({
                     onPress={onPressComponentLibrary}
                 >
                     <SettingOption
-                        containerStyle={styles.itemStyle}
                         label={intl.formatMessage({id: 'settings.advanced.component_library', defaultMessage: 'Component library'})}
                         testID='advanced_settings.component_library.option'
                         type='none'
                     />
-                    <SettingSeparator/>
+                    {/* <SettingSeparator/> */}
                 </TouchableOpacity>
             )}
+            <SettingBlock
+                headerText={defineMessage({
+                    id: 'settings.advanced.experimental_features',
+                    defaultMessage: 'Experimental Features',
+                })}
+            >
+                <SettingSeparator/>
+
+                <SettingOption
+                    action={onToggleLowConnectivityMonitor}
+                    label={intl.formatMessage({id: 'settings.advanced.low_connectivity_monitor', defaultMessage: 'Low Connectivity Monitor'})}
+                    description={intl.formatMessage({
+                        id: 'settings.advanced.low_connectivity_monitor.description',
+                        defaultMessage: 'Display banners when network connectivity or performance issues are detected',
+                    })}
+                    selected={isLowConnectivityMonitorEnabled}
+                    testID='advanced_settings.low_connectivity_monitor.option'
+                    type='toggle'
+                />
+                <SettingSeparator/>
+            </SettingBlock>
         </SettingContainer>
     );
 };

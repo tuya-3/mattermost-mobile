@@ -112,6 +112,7 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
     const clearRef = useRef<boolean>(false);
     const cancelRef = useRef<boolean>(false);
     const searchRef = useRef<SearchRef>(null);
+    const processedSearchTermRef = useRef<string>('');
 
     const [cursorPosition, setCursorPosition] = useState(searchTerm?.length || 0);
     const [searchValue, setSearchValue] = useState<string>(searchTerm || '');
@@ -137,6 +138,7 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
 
     const onSnap = useCallback((offset: number, animated = true) => {
         scrollRef.current?.scrollToOffset({offset, animated});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- scrollRef is a ref object, so its reference should not change between renders
     }, []);
 
     const onSnapWithTimeout = useCallback((offset: number, animated = true) => {
@@ -278,6 +280,7 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
             paddingTop: scrollPaddingTop,
             flexGrow: 1,
             justifyContent: (resultsLoading || loading) ? 'center' : 'flex-start',
+            paddingHorizontal: 18,
         };
     }, [loading, resultsLoading, scrollPaddingTop]);
 
@@ -301,9 +304,16 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
             />
         );
     }, [
-        handleModifierTextChange, handleRecentSearch,
-        loading, scrollEnabled, scrollPaddingTop, searchTeamId,
-        searchValue, styles.loading, teams, theme.buttonBg,
+        handleModifierTextChange,
+        handleRecentSearch,
+        loading,
+        scrollEnabled,
+        scrollPaddingTop,
+        searchTeamId,
+        searchValue,
+        teams,
+        theme.buttonBg,
+        updateSearchTeamId,
     ]);
 
     const animated = useAnimatedStyle(() => {
@@ -357,7 +367,8 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
     }, [unlock, onSnapWithTimeout]);
 
     useEffect(() => {
-        if (searchTerm) {
+        if (searchTerm && searchTerm !== processedSearchTermRef.current) {
+            processedSearchTermRef.current = searchTerm;
             clearInputs();
             setSearchValue(searchTerm);
             handleSearch(searchTeamId, searchTerm);
@@ -371,6 +382,7 @@ const SearchScreen = ({teamId, teams, crossTeamSearchEnabled}: Props) => {
             }, 300);
         } else {
             setAutoScroll(false);
+            processedSearchTermRef.current = '';
         }
     }, [isFocused]);
 
